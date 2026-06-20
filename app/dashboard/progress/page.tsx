@@ -3,6 +3,7 @@ import { TopBar } from '@/components/layout/TopBar';
 import { getCurrentUser } from '@/lib/auth';
 import { getProgress, getActivity } from '@/lib/queries';
 import { CheckCircle, Play, Award, BookOpen } from 'lucide-react';
+import { Tr } from '@/components/Tr';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,46 +44,46 @@ export default async function ProgressPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/sign-in');
   const [data, activity] = await Promise.all([getProgress(user.id), getActivity(user.id)]);
-  const stats = [
-    { label: 'Total hours', value: `${data.stats.hours}h` },
-    { label: 'Lessons completed', value: String(data.stats.lessonsCompleted) },
-    { label: 'Certificates', value: String(data.stats.certificates) },
-    { label: 'Courses enrolled', value: String(data.courses.length) },
+  const stats: { k: 'prog_total_hours' | 'prog_lessons_completed' | 'prog_certificates' | 'prog_courses_enrolled'; value: string }[] = [
+    { k: 'prog_total_hours', value: `${data.stats.hours}h` },
+    { k: 'prog_lessons_completed', value: String(data.stats.lessonsCompleted) },
+    { k: 'prog_certificates', value: String(data.stats.certificates) },
+    { k: 'prog_courses_enrolled', value: String(data.courses.length) },
   ];
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: 'var(--surface-page)' }}>
-      <TopBar title="Progress" />
+      <TopBar titleKey="dash_progress" />
       <div className="p-4 sm:p-7 flex flex-col gap-7" style={{ maxWidth: 980, margin: '0 auto' }}>
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map(s => (
-            <div key={s.label} className="p-5 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)' }}>
+            <div key={s.k} className="p-5 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)' }}>
               <div className="text-[26px] font-bold text-[var(--text-strong)] leading-none" style={{ fontFamily: 'var(--font-display)' }}>{s.value}</div>
-              <div className="text-[12px] text-[var(--text-muted)] mt-1.5">{s.label}</div>
+              <div className="text-[12px] text-[var(--text-muted)] mt-1.5"><Tr k={s.k} /></div>
             </div>
           ))}
         </div>
 
         {/* Activity heatmap */}
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-4" style={{ fontFamily: 'var(--font-display)' }}>Learning activity</h3>
+          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-4" style={{ fontFamily: 'var(--font-display)' }}><Tr k="prog_learning_activity" /></h3>
           <Heatmap />
           <div className="flex items-center gap-3 mt-3 text-[11px] text-[var(--text-muted)]">
-            <span>Less</span>
+            <span><Tr k="prog_less" /></span>
             {['var(--neutral-100)', 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.6)', '#6366F1'].map((bg, i) => (
               <div key={i} className="w-3 h-3 rounded-[2px]" style={{ background: bg }} />
             ))}
-            <span>More</span>
+            <span><Tr k="prog_more" /></span>
           </div>
         </div>
 
         {/* Progress by course */}
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-5" style={{ fontFamily: 'var(--font-display)' }}>Progress by course</h3>
+          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-5" style={{ fontFamily: 'var(--font-display)' }}><Tr k="prog_by_course" /></h3>
           <div className="flex flex-col gap-4">
-            {data.courses.length === 0 && <p className="text-[13px] text-[var(--text-muted)] m-0">No courses enrolled yet.</p>}
+            {data.courses.length === 0 && <p className="text-[13px] text-[var(--text-muted)] m-0"><Tr k="prog_no_courses" /></p>}
             {data.courses.map((c, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="text-[13px] font-medium text-[var(--text-body)] truncate" style={{ width: 200, flexShrink: 0 }}>{c.title}</div>
@@ -97,9 +98,9 @@ export default async function ProgressPage() {
 
         {/* Recent activity */}
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-5" style={{ fontFamily: 'var(--font-display)' }}>Recent activity</h3>
+          <h3 className="text-[16px] font-bold text-[var(--text-strong)] m-0 mb-5" style={{ fontFamily: 'var(--font-display)' }}><Tr k="prog_recent" /></h3>
           <div className="flex flex-col">
-            {activity.length === 0 && <p className="text-[13px] text-[var(--text-muted)] m-0">No activity yet — start a course!</p>}
+            {activity.length === 0 && <p className="text-[13px] text-[var(--text-muted)] m-0"><Tr k="prog_no_activity" /></p>}
           {activity.map((a, i) => {
               const Icon = ICON_MAP[a.icon] || CheckCircle;
               const [bg, fg] = TONE_COLORS[a.tone];

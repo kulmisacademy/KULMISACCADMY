@@ -5,6 +5,7 @@ import { TopBar } from '@/components/layout/TopBar';
 import { Button } from '@/components/ui/Button';
 import { getCurrentUser } from '@/lib/auth';
 import { getCertificates } from '@/lib/queries';
+import { Tr } from '@/components/Tr';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,14 +16,14 @@ export default async function CertificatesPage() {
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: 'var(--surface-page)' }}>
-      <TopBar title="Certificates" />
+      <TopBar titleKey="dash_certificates" />
       <div className="p-4 sm:p-7" style={{ maxWidth: 980, margin: '0 auto' }}>
         {certs.length === 0 ? (
           <div className="text-center py-24 flex flex-col items-center gap-3">
             <span className="text-5xl">🏆</span>
-            <div className="text-[18px] font-semibold text-[var(--text-strong)]">No certificates yet</div>
-            <div className="text-[14px] text-[var(--text-muted)]">Complete a course to earn your first certificate</div>
-            <Link href="/courses"><Button variant="primary" size="sm" className="mt-2">Browse courses</Button></Link>
+            <div className="text-[18px] font-semibold text-[var(--text-strong)]"><Tr k="cert_empty_title" /></div>
+            <div className="text-[14px] text-[var(--text-muted)]"><Tr k="cert_empty_sub" /></div>
+            <Link href="/courses"><Button variant="primary" size="sm" className="mt-2"><Tr k="cert_empty_cta" /></Button></Link>
           </div>
         ) : (
           <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))' }}>
@@ -31,7 +32,7 @@ export default async function CertificatesPage() {
                 <div className="relative p-8 flex flex-col items-center text-center gap-3" style={{ background: 'linear-gradient(135deg, #14132B 0%, #1A1740 55%, #241B52 100%)', minHeight: 220 }}>
                   <div aria-hidden className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(400px 300px at 50% -20%, rgba(99,102,241,0.8), transparent 70%)' }} />
                   <div className="relative">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#818CF8] mb-2">Certificate of Completion</div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#818CF8] mb-2"><Tr k="cert_of_completion" /></div>
                     <div className="text-[22px] font-bold text-white leading-tight mb-1" style={{ fontFamily: 'var(--font-display)' }}>{course.title}</div>
                     <div className="text-[13px] text-[var(--indigo-100)]">{user.name}</div>
                     <div className="text-[12px] mt-2" style={{ color: 'var(--indigo-200)' }}>{date}</div>
@@ -39,9 +40,9 @@ export default async function CertificatesPage() {
                   </div>
                 </div>
                 <div className="p-4 flex gap-2" style={{ background: 'var(--surface-card)', borderTop: '1px solid var(--border-subtle)' }}>
-                  <Button variant="secondary" size="sm" iconLeft={<Download size={14} />} className="flex-1">Download</Button>
-                  <Button variant="secondary" size="sm" iconLeft={<Share2 size={14} />} className="flex-1">Share</Button>
-                  <Button variant="ghost" size="sm" iconLeft={<ExternalLink size={14} />}>Verify</Button>
+                  <Button variant="secondary" size="sm" iconLeft={<Download size={14} />} className="flex-1"><Tr k="cert_download" /></Button>
+                  <Button variant="secondary" size="sm" iconLeft={<Share2 size={14} />} className="flex-1"><Tr k="cert_share" /></Button>
+                  <Button variant="ghost" size="sm" iconLeft={<ExternalLink size={14} />}><Tr k="cert_verify" /></Button>
                 </div>
               </div>
             ))}

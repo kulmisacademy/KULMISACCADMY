@@ -7,16 +7,12 @@ import { CategoryPill } from '@/components/ui/CategoryPill';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { CourseCard } from '@/components/CourseCard';
 import type { CourseView } from '@/lib/queries';
-
-const TABS = [
-  { id: 'inprogress', label: 'In Progress' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'bookmarked', label: 'Bookmarked' },
-];
+import { useT } from '@/lib/i18n/context';
 
 type Enr = { course: CourseView; progress: number; completed: boolean; completedDate?: string };
 
 function ProgressCard({ enr, tab }: { enr: Enr; tab: string }) {
+  const { t } = useT();
   const course = enr.course;
   return (
     <div className="flex gap-4 p-4 rounded-lg" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-sm)' }}>
@@ -30,15 +26,15 @@ function ProgressCard({ enr, tab }: { enr: Enr; tab: string }) {
         <h3 className="text-[15px] font-bold text-[var(--text-strong)] m-0 truncate" style={{ fontFamily: 'var(--font-display)' }}>{course.title}</h3>
         {tab === 'completed' ? (
           <div className="flex items-center gap-3 flex-wrap mt-auto">
-            <span className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#10B981' }}><Check size={14} /> Completed {enr.completedDate}</span>
-            <Link href="/dashboard/certificates"><Button variant="secondary" size="sm" iconLeft={<Award size={13} />}>View certificate</Button></Link>
+            <span className="flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: '#10B981' }}><Check size={14} /> {t('mc_completed_on')} {enr.completedDate}</span>
+            <Link href="/dashboard/certificates"><Button variant="secondary" size="sm" iconLeft={<Award size={13} />}>{t('mc_view_cert')}</Button></Link>
           </div>
         ) : (
           <>
             <ProgressBar value={enr.progress} showLabel />
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[var(--text-muted)]">{course.lessons} lessons</span>
-              <Link href={`/learn/${course.id}/start`} className="ml-auto"><Button variant="mint" size="sm" iconLeft={<Play size={13} />}>Resume</Button></Link>
+              <span className="text-[11px] text-[var(--text-muted)]">{course.lessons} {t('courses_lessons')}</span>
+              <Link href={`/learn/${course.id}/start`} className="ml-auto"><Button variant="mint" size="sm" iconLeft={<Play size={13} />}>{t('mc_resume')}</Button></Link>
             </div>
           </>
         )}
@@ -59,7 +55,13 @@ function EmptyState({ icon, text, sub, cta, href }: { icon: string; text: string
 }
 
 export function MyCoursesClient({ inProgress, completed, bookmarked }: { inProgress: Enr[]; completed: Enr[]; bookmarked: CourseView[] }) {
+  const { t } = useT();
   const [tab, setTab] = useState('inprogress');
+  const TABS = [
+    { id: 'inprogress', label: t('mc_tab_inprogress') },
+    { id: 'completed', label: t('mc_tab_completed') },
+    { id: 'bookmarked', label: t('mc_tab_bookmarked') },
+  ];
 
   return (
     <div className="p-4 sm:p-7" style={{ maxWidth: 980, margin: '0 auto' }}>
@@ -75,13 +77,13 @@ export function MyCoursesClient({ inProgress, completed, bookmarked }: { inProgr
       {tab === 'inprogress' && (
         inProgress.length
           ? <div className="flex flex-col gap-4">{inProgress.map((e) => <ProgressCard key={e.course.id} enr={e} tab="inprogress" />)}</div>
-          : <EmptyState icon="📚" text="No courses in progress" sub="Browse our catalog and start your first course" cta="Browse courses" href="/courses" />
+          : <EmptyState icon="📚" text={t('mc_empty_inprogress')} sub={t('mc_empty_inprogress_sub')} cta={t('mc_empty_inprogress_cta')} href="/courses" />
       )}
 
       {tab === 'completed' && (
         completed.length
           ? <div className="flex flex-col gap-4">{completed.map((e) => <ProgressCard key={e.course.id} enr={e} tab="completed" />)}</div>
-          : <EmptyState icon="🏆" text="No completed courses yet" sub="Keep learning to earn your first certificate" cta="Continue learning" href="/dashboard" />
+          : <EmptyState icon="🏆" text={t('mc_empty_completed')} sub={t('mc_empty_completed_sub')} cta={t('mc_empty_completed_cta')} href="/dashboard" />
       )}
 
       {tab === 'bookmarked' && (
@@ -89,7 +91,7 @@ export function MyCoursesClient({ inProgress, completed, bookmarked }: { inProgr
           ? <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
               {bookmarked.map((c) => <Link key={c.id} href={`/courses/${c.id}`} className="no-underline"><CourseCard course={c} /></Link>)}
             </div>
-          : <EmptyState icon="🔖" text="No bookmarks yet" sub="Bookmark courses you want to take later" cta="Explore courses" href="/courses" />
+          : <EmptyState icon="🔖" text={t('mc_empty_bookmarked')} sub={t('mc_empty_bookmarked_sub')} cta={t('mc_empty_bookmarked_cta')} href="/courses" />
       )}
     </div>
   );

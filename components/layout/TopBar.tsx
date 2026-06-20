@@ -2,13 +2,18 @@
 import { Search, Bell, Flame, Menu } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { useSidebar } from '@/components/layout/SidebarContext';
+import { useT } from '@/lib/i18n/context';
+import type { TranslationKey } from '@/lib/i18n/translations';
 
 interface TopBarProps {
-  title: string;
+  title?: string;
+  titleKey?: TranslationKey;
 }
 
-export function TopBar({ title }: TopBarProps) {
+export function TopBar({ title, titleKey }: TopBarProps) {
   const { setOpen } = useSidebar();
+  const { t } = useT();
+  const heading = titleKey ? t(titleKey) : (title ?? '');
   return (
     <header
       className="flex items-center gap-3 sm:gap-4 px-4 sm:px-7 flex-shrink-0 sticky top-0 z-30"
@@ -33,7 +38,7 @@ export function TopBar({ title }: TopBarProps) {
         className="text-[16px] sm:text-[18px] font-bold text-[var(--text-strong)] m-0 truncate"
         style={{ fontFamily: 'var(--font-display)', letterSpacing: 'var(--tracking-tight)' }}
       >
-        {title}
+        {heading}
       </h1>
 
       <div className="ml-auto flex items-center gap-3.5">
@@ -43,7 +48,7 @@ export function TopBar({ title }: TopBarProps) {
           style={{ background: 'var(--neutral-100)', border: '1px solid var(--border-subtle)' }}
         >
           <Search size={15} />
-          <span>Search courses...</span>
+          <span>{t('topbar_search')}</span>
         </div>
 
         {/* Streak */}

@@ -11,21 +11,24 @@ import { KulmisLogoFull } from '@/components/KulmisLogoFull';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSidebar } from '@/components/layout/SidebarContext';
 import { signOutAction } from '@/app/actions/auth';
+import { useT } from '@/lib/i18n/context';
+import type { TranslationKey } from '@/lib/i18n/translations';
 
-const NAV = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { id: 'mycourses', label: 'My Courses', icon: BookOpen, href: '/dashboard/courses' },
-  { id: 'progress', label: 'Progress', icon: TrendingUp, href: '/dashboard/progress' },
-  { id: 'certificates', label: 'Certificates', icon: Award, href: '/dashboard/certificates' },
-  { id: 'community', label: 'Community', icon: Users, href: '/community' },
-  { id: 'catalog', label: 'Browse Courses', icon: Compass, href: '/courses' },
+const NAV: { id: string; labelKey: TranslationKey; icon: typeof LayoutDashboard; href: string }[] = [
+  { id: 'dashboard', labelKey: 'dash_title', icon: LayoutDashboard, href: '/dashboard' },
+  { id: 'mycourses', labelKey: 'dash_my_courses', icon: BookOpen, href: '/dashboard/courses' },
+  { id: 'progress', labelKey: 'dash_progress', icon: TrendingUp, href: '/dashboard/progress' },
+  { id: 'certificates', labelKey: 'dash_certificates', icon: Award, href: '/dashboard/certificates' },
+  { id: 'community', labelKey: 'nav_community', icon: Users, href: '/community' },
+  { id: 'catalog', labelKey: 'dash_browse', icon: Compass, href: '/courses' },
 ];
 
 export function Sidebar({ user }: { user?: { name: string; plan: string } }) {
+  const { t } = useT();
   const pathname = usePathname();
   const { open, setOpen } = useSidebar();
   const displayName = user?.name ?? 'Guest';
-  const planLabel = user?.plan === 'pro' ? 'Pro plan' : 'Free plan';
+  const planLabel = user?.plan === 'pro' ? t('side_pro_plan') : t('side_free_plan');
 
   const asideClass =
     'w-[244px] flex-shrink-0 flex flex-col h-full overflow-y-auto z-50 transition-transform duration-200 fixed inset-y-0 left-0 lg:static lg:translate-x-0 ' +
@@ -77,7 +80,7 @@ export function Sidebar({ user }: { user?: { name: string; plan: string } }) {
             <Avatar name={displayName} size={36} status="online" />
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-semibold text-[var(--text-strong)] truncate">{displayName}</div>
-              <div className="text-[11px] text-[var(--text-muted)] font-mono">Edit profile →</div>
+              <div className="text-[11px] text-[var(--text-muted)] font-mono">{t('dash_edit_profile')}</div>
             </div>
           </Link>
           <form action={signOutAction}>
@@ -89,7 +92,7 @@ export function Sidebar({ user }: { user?: { name: string; plan: string } }) {
 
         {/* Nav */}
         <nav className="flex flex-col gap-1">
-          {NAV.map(({ id, label, icon: Icon, href }) => {
+          {NAV.map(({ id, labelKey, icon: Icon, href }) => {
             const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
             return (
               <Link
@@ -104,7 +107,7 @@ export function Sidebar({ user }: { user?: { name: string; plan: string } }) {
                 }}
               >
                 <Icon size={18} />
-                {label}
+                {t(labelKey)}
               </Link>
             );
           })}
@@ -130,13 +133,13 @@ export function Sidebar({ user }: { user?: { name: string; plan: string } }) {
           style={{ background: 'var(--gradient-hero)' }}
         >
           <div className="flex items-center gap-2 text-[13px] font-bold mb-1.5">
-            <Zap size={15} color="var(--mint-400)" /> Go Pro
+            <Zap size={15} color="var(--mint-400)" /> {t('dash_upgrade')}
           </div>
           <p className="text-[11px] mb-3 leading-relaxed" style={{ color: 'var(--indigo-100)' }}>
-            Unlock all courses, unlimited AI Tutor, and certificates.
+            {t('dash_upgrade_desc')}
           </p>
           <Link href="/pricing">
-            <Button variant="mint" size="sm" fullWidth>Upgrade</Button>
+            <Button variant="mint" size="sm" fullWidth>{t('dash_upgrade_btn')}</Button>
           </Link>
         </div>
       </aside>

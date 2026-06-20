@@ -13,7 +13,7 @@ export default async function MyCoursesPage() {
 
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: 'var(--surface-page)' }}>
-      <TopBar title="My Courses" />
+      <TopBar titleKey="dash_my_courses" />
       <MyCoursesClient inProgress={data.inProgress} completed={data.completed} bookmarked={data.bookmarked} />
     </div>
   );

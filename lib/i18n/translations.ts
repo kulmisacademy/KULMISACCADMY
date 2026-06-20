@@ -18,7 +18,6 @@ const T = {
     nav_start_free: 'Start for free',
 
     /* ── Hero ── */
-    hero_badge: 'AI & Coding Education',
     hero_title: 'Build the future\nwith AI',
     hero_subtitle: 'Master vibe coding, AI tools, and modern development — in English, Somali, and Arabic.',
     hero_cta_primary: 'Start learning free',
@@ -264,7 +263,6 @@ const T = {
     nav_start_free: 'Bilaaw bilaash',
 
     /* ── Hero ── */
-    hero_badge: 'Waxbarashada AI & Coding',
     hero_title: 'Mustaqbalka dhis\nla AI',
     hero_subtitle: 'Baro vibe coding, aaladaha AI, iyo horumarinta casriga ah — Ingiriis, Soomaali, iyo Carabi.',
     hero_cta_primary: 'Bilaaw bilaash ah',
@@ -510,7 +508,6 @@ const T = {
     nav_start_free: 'ابدأ مجانًا',
 
     /* ── Hero ── */
-    hero_badge: 'تعليم الذكاء الاصطناعي والبرمجة',
     hero_title: 'ابنِ المستقبل\nمع الذكاء الاصطناعي',
     hero_subtitle: 'أتقن vibe coding وأدوات الذكاء الاصطناعي والتطوير الحديث — بالإنجليزية والصومالية والعربية.',
     hero_cta_primary: 'ابدأ التعلم مجانًا',
@@ -750,7 +747,7 @@ export type TranslationKey = keyof typeof T.en;
 export type Translations = typeof T.en;
 
 export function getTranslations(lang: Lang): Translations {
-  return T[lang] ?? T.en;
+  return (T[lang] ?? T.en) as unknown as Translations;
 }
 
 export default T;

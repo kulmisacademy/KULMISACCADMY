@@ -12,7 +12,7 @@ const CRC_TABLE = (() => {
 
 function crc32(bytes: Uint8Array): number {
   let c = 0xffffffff;
-  for (const b of bytes) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
+  for (const b of Array.from(bytes)) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
 
@@ -73,5 +73,5 @@ export function buildZip(files: { name: string; content: string }[]): Blob {
     u16(0),                    // comment length
   );
 
-  return new Blob([...locals, ...centrals, end], { type: 'application/zip' });
+  return new Blob([...locals, ...centrals, end] as BlobPart[], { type: 'application/zip' });
 }

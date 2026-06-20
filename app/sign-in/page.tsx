@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/Button';
 import { NeuralMesh } from '@/components/NeuralMesh';
 import { Avatar } from '@/components/ui/Avatar';
 import { signInAction, type AuthState } from '@/app/actions/auth';
+import { useT } from '@/lib/i18n/context';
 
-function SubmitButton() {
+function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <Button variant="primary" size="lg" fullWidth loading={pending} type="submit">Sign in</Button>;
+  return <Button variant="primary" size="lg" fullWidth loading={pending} type="submit">{label}</Button>;
 }
 
 function Field({ label, name, type = 'text', placeholder, icon, value, onChange }: {
@@ -42,6 +43,7 @@ function Field({ label, name, type = 'text', placeholder, icon, value, onChange 
 }
 
 export default function SignInPage() {
+  const { t } = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [next, setNext] = useState('');
@@ -78,29 +80,29 @@ export default function SignInPage() {
         <div className="w-full max-w-[400px] flex flex-col gap-6">
           <div>
             <h1 className="text-[28px] font-bold text-[var(--text-strong)] m-0 mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              Welcome back
+              {t('auth_signin_title')}
             </h1>
-            <p className="text-[14px] text-[var(--text-muted)] m-0">Sign in to continue learning</p>
+            <p className="text-[14px] text-[var(--text-muted)] m-0">{t('auth_signin_subtitle')}</p>
           </div>
 
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="next" value={next} />
-            <Field label="Email" name="email" type="email" placeholder="you@example.com" icon={<Mail size={17} />} value={email} onChange={setEmail} />
+            <Field label={t('auth_email')} name="email" type="email" placeholder="you@example.com" icon={<Mail size={17} />} value={email} onChange={setEmail} />
             <div>
-              <Field label="Password" name="password" type="password" placeholder="••••••••" icon={<Lock size={17} />} value={password} onChange={setPassword} />
-              <a href="#" className="block text-right mt-2 text-[12px] font-semibold no-underline" style={{ color: 'var(--text-link)' }}>Forgot password?</a>
+              <Field label={t('auth_password')} name="password" type="password" placeholder="••••••••" icon={<Lock size={17} />} value={password} onChange={setPassword} />
+              <a href="#" className="block text-right mt-2 text-[12px] font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_forgot')}</a>
             </div>
             {state.error && (
               <div className="text-[13px] px-3.5 py-2.5 rounded-md" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#F87171' }}>
                 {state.error}
               </div>
             )}
-            <SubmitButton />
+            <SubmitButton label={t('auth_signin_btn')} />
           </form>
 
           <p className="text-center text-[13px] text-[var(--text-muted)] m-0">
-            Don't have an account?{' '}
-            <Link href="/sign-up" className="font-bold no-underline" style={{ color: 'var(--text-link)' }}>Sign up</Link>
+            {t('auth_no_account')}{' '}
+            <Link href="/sign-up" className="font-bold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_signup_link')}</Link>
           </p>
         </div>
       </div>

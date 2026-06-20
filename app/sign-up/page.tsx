@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/Button';
 import { NeuralMesh } from '@/components/NeuralMesh';
 import { Avatar } from '@/components/ui/Avatar';
 import { signUpAction, type AuthState } from '@/app/actions/auth';
+import { useT } from '@/lib/i18n/context';
 
-function SubmitButton() {
+function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
-  return <Button variant="primary" size="lg" fullWidth loading={pending} type="submit">Create account</Button>;
+  return <Button variant="primary" size="lg" fullWidth loading={pending} type="submit">{label}</Button>;
 }
 
 function Field({ label, name, type = 'text', placeholder, icon, value, onChange }: {
@@ -31,6 +32,7 @@ function Field({ label, name, type = 'text', placeholder, icon, value, onChange 
 }
 
 export default function SignUpPage() {
+  const { t } = useT();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +43,7 @@ export default function SignUpPage() {
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
   const strengthColors = ['var(--neutral-200)', '#EF4444', '#F59E0B', '#10B981'];
-  const strengthLabels = ['', 'Weak', 'Good', 'Strong'];
+  const strengthLabels = ['', t('auth_pw_weak'), t('auth_pw_good'), t('auth_pw_strong')];
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[40%_60%]">
@@ -72,17 +74,17 @@ export default function SignUpPage() {
         <div className="w-full max-w-[400px] flex flex-col gap-6">
           <div>
             <h1 className="text-[28px] font-bold text-[var(--text-strong)] m-0 mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              Create your account
+              {t('auth_signup_title')}
             </h1>
-            <p className="text-[14px] text-[var(--text-muted)] m-0">Free to start. No credit card needed.</p>
+            <p className="text-[14px] text-[var(--text-muted)] m-0">{t('auth_signup_free_note')}</p>
           </div>
 
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="next" value={next} />
-            <Field label="Full name" name="name" placeholder="Amina Yusuf" icon={<User size={17} />} value={name} onChange={setName} />
-            <Field label="Email" name="email" type="email" placeholder="you@example.com" icon={<Mail size={17} />} value={email} onChange={setEmail} />
+            <Field label={t('auth_name')} name="name" placeholder="Amina Yusuf" icon={<User size={17} />} value={name} onChange={setName} />
+            <Field label={t('auth_email')} name="email" type="email" placeholder="you@example.com" icon={<Mail size={17} />} value={email} onChange={setEmail} />
             <div>
-              <Field label="Password" name="password" type="password" placeholder="At least 8 characters" icon={<Lock size={17} />} value={password} onChange={setPassword} />
+              <Field label={t('auth_password')} name="password" type="password" placeholder={t('auth_pw_placeholder')} icon={<Lock size={17} />} value={password} onChange={setPassword} />
               {password.length > 0 && (
                 <div className="flex items-center gap-2 mt-2">
                   <div className="flex-1 flex gap-1">
@@ -98,10 +100,10 @@ export default function SignUpPage() {
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input type="checkbox" className="mt-0.5" />
               <span className="text-[12px] text-[var(--text-muted)] leading-relaxed">
-                I agree to the{' '}
-                <a href="#" className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>Terms of Service</a>{' '}
-                and{' '}
-                <a href="#" className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>Privacy Policy</a>
+                {t('auth_terms_agree')}{' '}
+                <a href="#" className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_terms_tos')}</a>{' '}
+                {t('auth_terms_and')}{' '}
+                <a href="#" className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_terms_privacy')}</a>
               </span>
             </label>
 
@@ -110,12 +112,12 @@ export default function SignUpPage() {
                 {state.error}
               </div>
             )}
-            <SubmitButton />
+            <SubmitButton label={t('auth_signup_btn')} />
           </form>
 
           <p className="text-center text-[13px] text-[var(--text-muted)] m-0">
-            Already have an account?{' '}
-            <Link href="/sign-in" className="font-bold no-underline" style={{ color: 'var(--text-link)' }}>Sign in</Link>
+            {t('auth_has_account')}{' '}
+            <Link href="/sign-in" className="font-bold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_signin_link')}</Link>
           </p>
         </div>
       </div>

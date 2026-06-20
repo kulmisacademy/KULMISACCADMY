@@ -1,29 +1,10 @@
+'use client';
 import Link from 'next/link';
 import { Globe, MessageCircle, AtSign, Sparkles } from 'lucide-react';
+import { useT } from '@/lib/i18n/context';
 
 const EMAIL = 'kulmistechsolutions@gmail.com';
 const WHATSAPP = 'https://wa.me/252613609678';
-
-const COLS = [
-  { h: 'Tracks', items: [
-    { label: 'Vibe Coding', href: '/courses?track=vibe-coding' },
-    { label: 'Traditional Coding', href: '/courses?track=traditional-coding' },
-    { label: 'AI Tools', href: '/courses?track=ai-tools' },
-    { label: 'AI Agents', href: '/courses?track=ai-agents' },
-  ]},
-  { h: 'Explore', items: [
-    { label: 'All courses', href: '/courses' },
-    { label: 'Community', href: '/community' },
-    { label: 'Resources', href: '/resources' },
-    { label: 'AI Studio', href: '/ai' },
-  ]},
-  { h: 'Support', items: [
-    { label: 'Help center (WhatsApp)', href: WHATSAPP },
-    { label: 'Contact: +252 61 360 9678', href: WHATSAPP },
-    { label: 'Email us', href: `mailto:${EMAIL}` },
-    { label: 'My dashboard', href: '/dashboard' },
-  ]},
-];
 
 const SOCIALS = [
   { icon: Globe, href: '/' },
@@ -33,6 +14,29 @@ const SOCIALS = [
 ];
 
 export function Footer() {
+  const { t } = useT();
+
+  const COLS = [
+    { h: t('footer_tracks'), items: [
+      { label: t('track_vibe_title'), href: '/courses?track=vibe-coding' },
+      { label: t('track_traditional_title'), href: '/courses?track=traditional-coding' },
+      { label: t('track_aitools_title'), href: '/courses?track=ai-tools' },
+      { label: t('track_aiagents_title'), href: '/courses?track=ai-agents' },
+    ]},
+    { h: t('footer_explore'), items: [
+      { label: t('footer_all_courses'), href: '/courses' },
+      { label: t('nav_community'), href: '/community' },
+      { label: t('nav_resources'), href: '/resources' },
+      { label: t('nav_ai_studio'), href: '/ai' },
+    ]},
+    { h: t('footer_support'), items: [
+      { label: t('footer_help'), href: WHATSAPP },
+      { label: t('footer_contact'), href: WHATSAPP },
+      { label: t('footer_email'), href: `mailto:${EMAIL}` },
+      { label: t('footer_my_dashboard'), href: '/dashboard' },
+    ]},
+  ];
+
   return (
     <footer style={{ background: '#13132B', color: '#fff' }}>
       <div
@@ -46,7 +50,7 @@ export function Footer() {
             <img src="/logo-dark.png" alt="Kulmis Academy" style={{ height: 34, width: 'auto' }} />
           </Link>
           <p className="mt-4 max-w-[280px] text-[13px] leading-relaxed" style={{ color: '#94A3B8', fontFamily: 'var(--font-sans)' }}>
-            AI &amp; coding education for everyone — in English, Somali, and Arabic.
+            {t('footer_desc')}
           </p>
           <div className="flex gap-2.5 mt-4">
             {SOCIALS.map(({ icon: Icon, href }, i) => (
@@ -85,9 +89,9 @@ export function Footer() {
 
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="mx-auto px-5 sm:px-8 py-5 flex justify-between flex-wrap gap-3 items-center text-[12px]" style={{ maxWidth: 'var(--container-max)', color: '#94A3B8' }}>
-          <span>© 2026 Kulmis Academy. All rights reserved.</span>
+          <span>{t('footer_rights')}</span>
           <span className="flex gap-4 items-center">
-            <Link href="/pricing" className="hover:text-white transition-colors" style={{ color: 'inherit' }}>Pricing</Link>
+            <Link href="/pricing" className="hover:text-white transition-colors" style={{ color: 'inherit' }}>{t('nav_pricing')}</Link>
             <Link href={WHATSAPP} className="hover:text-white transition-colors" style={{ color: 'inherit' }}>WhatsApp</Link>
           </span>
         </div>

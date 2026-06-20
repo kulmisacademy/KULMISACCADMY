@@ -9,8 +9,10 @@ import { WaafiCheckout } from '@/components/WaafiCheckout';
 import { RESOURCE_TYPES } from '@/components/ResourceCard';
 import { payForResourceAction } from '@/app/actions/payment';
 import type { ResourceView } from '@/lib/queries';
+import { useT } from '@/lib/i18n/context';
 
 function DemoModal({ user, pass, onClose }: { user: string | null; pass: string | null; onClose: () => void }) {
+  const { t } = useT();
   const [showPass, setShowPass] = useState(false);
   const [copiedUser, setCopiedUser] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
@@ -25,23 +27,23 @@ function DemoModal({ user, pass, onClose }: { user: string | null; pass: string 
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'rgba(99,102,241,0.08)' }}>
           <div className="flex items-center gap-2.5">
             <FlaskConical size={18} color="#818CF8" />
-            <span className="text-[15px] font-bold" style={{ color: 'var(--text-strong)' }}>Demo Credentials</span>
+            <span className="text-[15px] font-bold" style={{ color: 'var(--text-strong)' }}>{t('rd_demo_title')}</span>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
         </div>
 
         <div className="p-5 flex flex-col gap-4">
           <p className="text-[12px] m-0" style={{ color: 'var(--text-muted)' }}>
-            Use these credentials to try the demo version of this resource.
+            {t('rd_demo_desc')}
           </p>
 
           {user && (
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Username / Email</label>
+              <label className="text-[11px] font-bold uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--text-muted)' }}>{t('rd_demo_user')}</label>
               <div className="flex items-center gap-2 px-3 rounded-md h-10" style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-default)' }}>
                 <span className="flex-1 text-[14px] font-mono truncate" style={{ color: 'var(--text-strong)' }}>{user}</span>
                 <button onClick={() => copy(user, setCopiedUser)} className="flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded" style={{ color: copiedUser ? '#10B981' : 'var(--text-muted)' }}>
-                  <Copy size={12} />{copiedUser ? 'Copied' : 'Copy'}
+                  <Copy size={12} />{copiedUser ? t('rd_copied') : t('rd_copy')}
                 </button>
               </div>
             </div>
@@ -49,21 +51,21 @@ function DemoModal({ user, pass, onClose }: { user: string | null; pass: string 
 
           {pass && (
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--text-muted)' }}>Password</label>
+              <label className="text-[11px] font-bold uppercase tracking-wide mb-1.5 block" style={{ color: 'var(--text-muted)' }}>{t('rd_demo_pass')}</label>
               <div className="flex items-center gap-2 px-3 rounded-md h-10" style={{ background: 'var(--surface-subtle)', border: '1px solid var(--border-default)' }}>
                 <span className="flex-1 text-[14px] font-mono truncate" style={{ color: 'var(--text-strong)' }}>{showPass ? pass : '••••••••'}</span>
                 <button onClick={() => setShowPass((v) => !v)} className="flex-shrink-0 px-1.5 py-1 rounded" style={{ color: 'var(--text-muted)' }}>
                   {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
                 <button onClick={() => copy(pass, setCopiedPass)} className="flex-shrink-0 flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded" style={{ color: copiedPass ? '#10B981' : 'var(--text-muted)' }}>
-                  <Copy size={12} />{copiedPass ? 'Copied' : 'Copy'}
+                  <Copy size={12} />{copiedPass ? t('rd_copied') : t('rd_copy')}
                 </button>
               </div>
             </div>
           )}
 
           <button onClick={onClose} className="w-full h-10 rounded-md text-[14px] font-semibold mt-1" style={{ background: 'rgba(99,102,241,0.12)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.25)' }}>
-            Close
+            {t('btn_close')}
           </button>
         </div>
       </div>
@@ -72,6 +74,7 @@ function DemoModal({ user, pass, onClose }: { user: string | null; pass: string 
 }
 
 export function ResourceDetailClient({ resource, isLoggedIn, purchased }: { resource: ResourceView; isLoggedIn: boolean; purchased: boolean }) {
+  const { t } = useT();
   const meta = RESOURCE_TYPES[resource.type] ?? RESOURCE_TYPES.other;
   const downloadHref = `/api/resources/${resource.id}/download`;
   const canDownload = resource.isFree || purchased;
@@ -89,7 +92,7 @@ export function ResourceDetailClient({ resource, isLoggedIn, purchased }: { reso
 
       <div style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface-subtle)' }}>
         <div className="mx-auto px-5 sm:px-8 py-3 flex items-center gap-2 text-[12px]" style={{ maxWidth: 'var(--container-max)', color: 'var(--text-muted)' }}>
-          <Link href="/resources" className="hover:text-[var(--text-body)] flex items-center gap-1.5"><ArrowLeft size={13} /> Resources</Link>
+          <Link href="/resources" className="hover:text-[var(--text-body)] flex items-center gap-1.5"><ArrowLeft size={13} /> {t('nav_resources')}</Link>
           <span>/</span>
           <span style={{ color: meta.color }}>{meta.label}</span>
         </div>
@@ -143,7 +146,7 @@ export function ResourceDetailClient({ resource, isLoggedIn, purchased }: { reso
 
             {resource.highlights.length > 0 && (
               <div>
-                <h3 className="text-[17px] font-bold text-[var(--text-strong)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>What&apos;s inside</h3>
+                <h3 className="text-[17px] font-bold text-[var(--text-strong)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>{t('rd_whats_inside')}</h3>
                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                   {resource.highlights.map((h) => (
                     <div key={h} className="flex items-start gap-3 text-[13px] text-[var(--text-body)]"><Check size={16} color="#10B981" className="mt-0.5 flex-shrink-0" />{h}</div>
@@ -158,36 +161,36 @@ export function ResourceDetailClient({ resource, isLoggedIn, purchased }: { reso
             <div className="p-6 flex flex-col gap-4">
               <div className="flex items-baseline gap-2">
                 {resource.isFree
-                  ? <span className="text-[30px] font-bold text-[#10B981]" style={{ fontFamily: 'var(--font-display)' }}>Free</span>
+                  ? <span className="text-[30px] font-bold text-[#10B981]" style={{ fontFamily: 'var(--font-display)' }}>{t('pricing_free_title')}</span>
                   : <span className="text-[30px] font-bold text-[var(--text-strong)]" style={{ fontFamily: 'var(--font-display)' }}>{resource.price}</span>}
-                {purchased && !resource.isFree && <span className="text-[12px] font-semibold text-[#10B981]">· Purchased</span>}
+                {purchased && !resource.isFree && <span className="text-[12px] font-semibold text-[#10B981]">· {t('rd_purchased')}</span>}
               </div>
 
               {canDownload ? (
                 <a href={downloadHref} target="_blank" rel="noopener noreferrer">
-                  <Button variant="mint" size="lg" fullWidth iconLeft={<Download size={16} />}>Download now</Button>
+                  <Button variant="mint" size="lg" fullWidth iconLeft={<Download size={16} />}>{t('rd_download_now')}</Button>
                 </a>
               ) : !isLoggedIn ? (
                 <>
                   <Link href={`/sign-up?next=/resources/${resource.id}`}>
-                    <Button variant="primary" size="lg" fullWidth>Create account to buy</Button>
+                    <Button variant="primary" size="lg" fullWidth>{t('rd_create_buy')}</Button>
                   </Link>
                   <p className="text-[12px] text-center text-[var(--text-muted)] m-0">
-                    Already have an account?{' '}
-                    <Link href={`/sign-in?next=/resources/${resource.id}`} className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>Sign in</Link>
+                    {t('rd_already')}{' '}
+                    <Link href={`/sign-in?next=/resources/${resource.id}`} className="font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('rd_signin')}</Link>
                   </p>
                 </>
               ) : (
                 <WaafiCheckout
                   action={payForResourceAction.bind(null, resource.id)}
                   amount={resource.price}
-                  triggerLabel={`Buy now · ${resource.price}`}
-                  title={`Unlock and download "${resource.title}".`}
+                  triggerLabel={`${t('rd_buy_now')} · ${resource.price}`}
+                  title={t('rd_buy_unlock_title').replace('{title}', resource.title)}
                 />
               )}
 
               {!canDownload && !resource.isFree && (
-                <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--text-subtle)]"><Lock size={12} /> Download unlocks after payment</div>
+                <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--text-subtle)]"><Lock size={12} /> {t('rd_unlock_after')}</div>
               )}
 
               {hasDemo && (
@@ -196,14 +199,14 @@ export function ResourceDetailClient({ resource, isLoggedIn, purchased }: { reso
                   className="w-full h-10 rounded-md text-[14px] font-semibold flex items-center justify-center gap-2"
                   style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#818CF8' }}
                 >
-                  <FlaskConical size={15} /> Try Demo
+                  <FlaskConical size={15} /> {t('rd_try_demo')}
                 </button>
               )}
 
               <div className="flex flex-col gap-2.5 pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><FileText size={15} color="var(--text-muted)" /> {resource.fileLabel || 'Digital download'}</div>
-                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><Download size={15} color="var(--text-muted)" /> {resource.downloads} downloads</div>
-                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><ShieldCheck size={15} color="var(--text-muted)" /> Secure WaafiPay checkout</div>
+                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><FileText size={15} color="var(--text-muted)" /> {resource.fileLabel || t('rd_digital')}</div>
+                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><Download size={15} color="var(--text-muted)" /> {resource.downloads} {t('rd_downloads')}</div>
+                <div className="flex items-center gap-2.5 text-[13px] text-[var(--text-body)]"><ShieldCheck size={15} color="var(--text-muted)" /> {t('rd_secure')}</div>
               </div>
             </div>
           </div>

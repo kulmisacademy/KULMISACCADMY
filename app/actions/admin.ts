@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { and, eq, asc, max } from 'drizzle-orm';
-import { db, courses, lessons, users, resources, courseResources, aiPlans } from '@/lib/db';
+import { db, courses, lessons, users, resources, courseResources, aiPlans, instructors } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 
 async function requireAdmin() {
@@ -306,4 +306,43 @@ export async function deleteAiPlanAction(slug: string) {
   await db.delete(aiPlans).where(eq(aiPlans.slug, slug));
   revalidatePath('/admin/ai-plans');
   revalidatePath('/ai');
+}
+
+/* ───────── Instructors ───────── */
+function instructorSlug(name: string) {
+  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'instructor';
+}
+
+export async function createInstructor(formData: FormData) {
+  await requireAdmin();
+  const name = String(formData.get('name') || '').trim();
+  const title = String(formData.get('title') || '').trim();
+  const bio = String(formData.get('bio') || '').trim();
+  const rating = Math.min(5, Math.max(0, parseFloat(String(formData.get('rating') || '0')) || 0));
+  const students = Math.max(0, parseInt(String(formData.get('students') || '0'), 10) || 0);
+  let slug = instructorSlug(name);
+  let i = 1;
+  while (await db.query.instructors.findFirst({ where: (r, { eq }) => eq(r.slug, slug) })) {
+    slug = `${instructorSlug(name)}-${++i}`;
+  }
+  await db.insert(instructors).values({ slug, name, title, bio, rating, students, courseCount: 0 });
+  revalidatePath('/admin/instructors');
+}
+
+export async function updateInstructor(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get('id') || '');
+  const name = String(formData.get('name') || '').trim();
+  const title = String(formData.get('title') || '').trim();
+  const bio = String(formData.get('bio') || '').trim();
+  const rating = Math.min(5, Math.max(0, parseFloat(String(formData.get('rating') || '0')) || 0));
+  const students = Math.max(0, parseInt(String(formData.get('students') || '0'), 10) || 0);
+  await db.update(instructors).set({ name, title, bio, rating, students }).where(eq(instructors.id, id));
+  revalidatePath('/admin/instructors');
+}
+
+export async function deleteInstructor(id: string) {
+  await requireAdmin();
+  await db.delete(instructors).where(eq(instructors.id, id));
+  revalidatePath('/admin/instructors');
 }

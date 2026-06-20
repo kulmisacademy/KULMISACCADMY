@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Package, Sparkles, Users, BarChart2, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Package, Sparkles, Users, BarChart2, Settings, Menu, X, UserCheck } from 'lucide-react';
 import { KulmisLogoFull } from '@/components/KulmisLogoFull';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -10,6 +10,7 @@ const NAV = [
   { href: '/admin/courses', label: 'Courses', icon: BookOpen },
   { href: '/admin/resources', label: 'Resources', icon: Package },
   { href: '/admin/ai-plans', label: 'AI Plans', icon: Sparkles },
+  { href: '/admin/instructors', label: 'Instructors', icon: UserCheck },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/admin/settings', label: 'Settings', icon: Settings },

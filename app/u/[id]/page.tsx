@@ -15,6 +15,8 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
   if (!profile) notFound();
   const viewerId = await getSessionUserId();
   const posts = await getFeed(viewerId, { authorId: params.id });
+  const viewer = viewerId ? await import('@/lib/queries').then(m => m.getProfile(viewerId)) : null;
+  const me = viewer ? { id: viewer.id, name: viewer.name, avatarUrl: viewer.avatarUrl } : null;
 
   return (
     <div style={{ background: 'var(--surface-page)', minHeight: '100vh' }}>
@@ -48,7 +50,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
         {posts.length === 0 ? (
           <div className="text-center py-12 text-[var(--text-muted)] text-[14px]">No posts yet.</div>
         ) : (
-          posts.map((p) => <PostCard key={p.id} post={p} />)
+          posts.map((p) => <PostCard key={p.id} post={p} me={me} />)
         )}
         <Link href="/community" className="text-[13px] font-semibold no-underline text-center" style={{ color: 'var(--text-link)' }}>← Back to community</Link>
       </div>

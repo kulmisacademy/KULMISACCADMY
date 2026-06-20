@@ -3,31 +3,28 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/lib/i18n/context';
+import type { Lang } from '@/lib/i18n/translations';
 
-const LANGS = [
+const LANGS: { code: Lang; flag: string; name: string; native: string; dir?: string }[] = [
   { code: 'en', flag: '🇬🇧', name: 'English', native: 'English' },
   { code: 'so', flag: '🇸🇴', name: 'Somali', native: 'Soomaali' },
   { code: 'ar', flag: '🇸🇦', name: 'Arabic', native: 'العربية', dir: 'rtl' },
 ];
 
-const LEVELS = [
-  { id: 'beginner', emoji: '🌱', title: 'Beginner', desc: 'No experience yet' },
-  { id: 'intermediate', emoji: '🔥', title: 'Intermediate', desc: 'Some projects built' },
-  { id: 'advanced', emoji: '⚡', title: 'Advanced', desc: 'Working developer' },
-];
-
-const GOALS = [
-  'Build AI apps', 'Vibe code faster', 'Learn Python',
-  'Prompt Engineering', 'AI Agents', 'Get a job in tech',
-];
-
-const STEPS = ['Language', 'Experience', 'Goals'];
-
 export default function OnboardingPage() {
+  const { t, lang, setLang } = useT();
   const [step, setStep] = useState(0);
-  const [lang, setLang] = useState('en');
   const [level, setLevel] = useState('');
   const [goals, setGoals] = useState<string[]>([]);
+
+  const LEVELS = [
+    { id: 'beginner', emoji: '🌱', title: t('level_beginner'), desc: t('ob_lvl_beg_desc') },
+    { id: 'intermediate', emoji: '🔥', title: t('level_intermediate'), desc: t('ob_lvl_int_desc') },
+    { id: 'advanced', emoji: '⚡', title: t('level_advanced'), desc: t('ob_lvl_adv_desc') },
+  ];
+  const GOALS = [t('ob_goal_1'), t('ob_goal_2'), t('ob_goal_3'), t('ob_goal_4'), t('ob_goal_5'), t('ob_goal_6')];
+  const STEPS = [t('ob_step_lang'), t('ob_step_exp'), t('ob_step_goals')];
 
   const toggleGoal = (g: string) => setGoals(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
 
@@ -58,9 +55,9 @@ export default function OnboardingPage() {
         {step === 0 && (
           <div>
             <h2 className="text-[24px] font-bold text-[var(--text-strong)] mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              What language do you prefer?
+              {t('ob_lang_q')}
             </h2>
-            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">Choose your learning language</p>
+            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">{t('ob_lang_sub')}</p>
             <div className="flex flex-col gap-3">
               {LANGS.map(l => (
                 <button
@@ -88,9 +85,9 @@ export default function OnboardingPage() {
         {step === 1 && (
           <div>
             <h2 className="text-[24px] font-bold text-[var(--text-strong)] mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              What's your coding experience?
+              {t('ob_exp_q')}
             </h2>
-            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">We'll personalize your path</p>
+            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">{t('ob_exp_sub')}</p>
             <div className="flex flex-col gap-3">
               {LEVELS.map(l => (
                 <button
@@ -114,9 +111,9 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div>
             <h2 className="text-[24px] font-bold text-[var(--text-strong)] mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              What do you want to learn?
+              {t('ob_goals_q')}
             </h2>
-            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">Select all that apply</p>
+            <p className="text-[14px] text-[var(--text-muted)] mb-6 m-0">{t('ob_goals_sub')}</p>
             <div className="grid grid-cols-2 gap-3">
               {GOALS.map(g => {
                 const on = goals.includes(g);
@@ -140,13 +137,13 @@ export default function OnboardingPage() {
 
         <div className="flex items-center justify-between mt-8 pt-6" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           {step > 0 ? (
-            <Button variant="ghost" size="sm" onClick={() => setStep(s => s - 1)}>Back</Button>
+            <Button variant="ghost" size="sm" onClick={() => setStep(s => s - 1)}>{t('btn_back')}</Button>
           ) : <div />}
           {step < 2 ? (
-            <Button variant="primary" size="md" onClick={() => setStep(s => s + 1)}>Continue</Button>
+            <Button variant="primary" size="md" onClick={() => setStep(s => s + 1)}>{t('ob_continue')}</Button>
           ) : (
             <Link href="/dashboard">
-              <Button variant="primary" size="md">Go to dashboard →</Button>
+              <Button variant="primary" size="md">{t('ob_go_dashboard')}</Button>
             </Link>
           )}
         </div>

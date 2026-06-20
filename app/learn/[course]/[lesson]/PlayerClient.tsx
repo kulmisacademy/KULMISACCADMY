@@ -9,13 +9,12 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { completeLessonAction } from '@/app/actions/learning';
+import { useT } from '@/lib/i18n/context';
 
 type LessonItem  = { id: string; t: string; d: string; s: 'completed' | 'active' | 'default'; free: boolean };
 type Section     = { section: string; lessons: LessonItem[] };
 type Message     = { role: 'user' | 'assistant'; content: string };
 type CourseFile  = { id: string; title: string; fileLabel: string; fileName: string | null; fileUrl: string | null };
-
-const QUICK_PROMPTS = ['Explain this concept', 'Review my code', 'Quiz me on this lesson'];
 
 function ytEmbed(url: string | null) {
   if (!url) return null;
@@ -32,6 +31,7 @@ function CurriculumSidebar({
   sections: Section[]; courseSlug: string; courseTitle: string;
   doneCount: number; totalLessons: number; onClose?: () => void;
 }) {
+  const { t } = useT();
   const pct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0;
   const [openSecs, setOpenSecs] = useState<Record<number, boolean>>(() => {
     const init: Record<number, boolean> = {};
@@ -45,7 +45,7 @@ function CurriculumSidebar({
       <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0D0D15', flexShrink: 0 }}>
         {onClose && (
           <button onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: 12, padding: 0 }}>
-            <X size={13}/> Close
+            <X size={13}/> {t('player_close')}
           </button>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -58,7 +58,7 @@ function CurriculumSidebar({
           </div>
           <span style={{ fontSize: 11, fontWeight: 700, color: pct === 100 ? '#10B981' : 'rgba(255,255,255,0.4)', flexShrink: 0 }}>{pct}%</span>
         </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 4 }}>{doneCount} of {totalLessons} lessons complete</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 4 }}>{t('player_lessons_complete').replace('{done}', String(doneCount)).replace('{total}', String(totalLessons))}</div>
       </div>
 
       {/* lesson list */}
@@ -130,6 +130,8 @@ function CurriculumSidebar({
    RIGHT PANEL — AI Tutor
 ══════════════════════════════════════════ */
 function AiTutorPanel({ lessonTitle }: { lessonTitle: string }) {
+  const { t } = useT();
+  const QUICK_PROMPTS = [t('player_qp_1'), t('player_qp_2'), t('player_qp_3')];
   const [msgs, setMsgs]   = useState<Message[]>([
     { role: 'assistant', content: `Salaan! Waxaan ahay AI Tutor-kaaga. Wax kasta oo ku saabsan "${lessonTitle}" i weydii — ama isticmaal mid ka mid ah prompts hoose.` },
   ]);
@@ -208,7 +210,7 @@ function AiTutorPanel({ lessonTitle }: { lessonTitle: string }) {
       <div style={{ padding: '6px 12px 14px', display: 'flex', gap: 8, flexShrink: 0 }}>
         <input value={input} onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send(); } }}
-          placeholder="Ask the AI tutor..."
+          placeholder={t('player_ask_ph')}
           style={{ flex: 1, height: 38, padding: '0 12px', borderRadius: 10, fontSize: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)', color: '#fff', outline: 'none' }}/>
         <button onClick={() => send()} disabled={busy || !input.trim()}
           style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: busy || !input.trim() ? 0.4 : 1 }}>
@@ -223,8 +225,9 @@ function AiTutorPanel({ lessonTitle }: { lessonTitle: string }) {
    TABS — Notes / Quiz / Code
 ══════════════════════════════════════════ */
 function NotesTab({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { t } = useT();
   return (
-    <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder="Take notes for this lesson..."
+    <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={t('player_notes_ph')}
       style={{ width: '100%', minHeight: 280, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 16, fontSize: 14, color: '#fff', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-sans)', lineHeight: 1.7, boxSizing: 'border-box' }}/>
   );
 }
@@ -261,6 +264,7 @@ function QuizTab() {
 }
 
 function CodeTab() {
+  const { t } = useT();
   const [code, setCode]     = useState('// Try it!\nconst greet = (name) => `Hello, ${name}!`;\nconsole.log(greet("World"));');
   const [output, setOutput] = useState('');
   function run() {
@@ -274,7 +278,7 @@ function CodeTab() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>JavaScript</span>
-        <Button variant="mint" size="sm" iconLeft={<Play size={12}/>} onClick={run}>Run</Button>
+        <Button variant="mint" size="sm" iconLeft={<Play size={12}/>} onClick={run}>{t('player_run')}</Button>
       </div>
       <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} rows={9}
         style={{ width: '100%', padding: 16, borderRadius: 12, fontSize: 13, fontFamily: 'var(--font-mono)', background: '#07070C', border: '1px solid rgba(255,255,255,0.07)', color: '#E2E8F0', resize: 'none', outline: 'none', boxSizing: 'border-box' }}/>
@@ -289,18 +293,19 @@ function CodeTab() {
    RESOURCES TAB
 ══════════════════════════════════════════ */
 function ResourcesTab({ files, courseSlug }: { files: CourseFile[]; courseSlug: string }) {
+  const { t } = useT();
   if (files.length === 0) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '40px 20px', color: 'rgba(255,255,255,0.25)' }}>
         <FolderOpen size={36} strokeWidth={1.2} />
-        <p style={{ margin: 0, fontSize: 13, textAlign: 'center' }}>No resources attached to this course yet.</p>
+        <p style={{ margin: 0, fontSize: 13, textAlign: 'center' }}>{t('player_no_resources')}</p>
       </div>
     );
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <p style={{ margin: '0 0 4px', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
-        {files.length} file{files.length !== 1 ? 's' : ''} — available to enrolled students
+        {t('player_files_avail').replace('{count}', String(files.length))}
       </p>
       {files.map((f) => {
         const href = f.fileUrl ?? `/api/courses/${courseSlug}/files/${f.id}`;
@@ -342,7 +347,7 @@ function ResourcesTab({ files, courseSlug }: { files: CourseFile[]; courseSlug: 
             {/* action badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: 'rgba(99,102,241,0.1)', color: '#818CF8', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
               {isExternal ? <ExternalLink size={11} /> : <Download size={11} />}
-              {isExternal ? 'Open' : 'Download'}
+              {isExternal ? t('player_open') : t('player_download')}
             </div>
           </a>
         );
@@ -363,16 +368,17 @@ export function PlayerClient({
   doneCount: number; nextId: string | null; enrolled: boolean;
   files: CourseFile[];
 }) {
+  const { t } = useT();
   const [tab,      setTab]    = useState<'notes'|'quiz'|'code'|'resources'>('notes');
   const [notes,    setNotes]  = useState('');
   const [currOpen, setCurr]   = useState(false);
   const embed = ytEmbed(current.videoUrl);
 
   const TABS = [
-    { id: 'notes'     as const, label: 'Notes',     icon: <FileText   size={13}/> },
-    { id: 'quiz'      as const, label: 'Quiz',      icon: <HelpCircle size={13}/> },
-    { id: 'code'      as const, label: 'Code',      icon: <Code       size={13}/> },
-    { id: 'resources' as const, label: `Resources${files.length > 0 ? ` (${files.length})` : ''}`, icon: <Download size={13}/> },
+    { id: 'notes'     as const, label: t('player_notes'),     icon: <FileText   size={13}/> },
+    { id: 'quiz'      as const, label: t('player_quiz'),      icon: <HelpCircle size={13}/> },
+    { id: 'code'      as const, label: t('player_code'),      icon: <Code       size={13}/> },
+    { id: 'resources' as const, label: `${t('player_resources')}${files.length > 0 ? ` (${files.length})` : ''}`, icon: <Download size={13}/> },
   ];
 
   return (
@@ -381,7 +387,7 @@ export function PlayerClient({
       {/* ─── TOP BAR ─── */}
       <header style={{ height: 56, background: '#0D0D15', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12, flexShrink: 0, zIndex: 20 }}>
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
-          <ArrowLeft size={15}/> <span className="hidden sm:inline">Back</span>
+          <ArrowLeft size={15}/> <span className="hidden sm:inline">{t('player_back')}</span>
         </Link>
         <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }}/>
         <span className="hidden sm:block" style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{courseTitle}</span>
@@ -391,18 +397,18 @@ export function PlayerClient({
         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
           {current.completed ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, background: 'rgba(16,185,129,0.1)', color: '#10B981', fontSize: 12, fontWeight: 700, border: '1px solid rgba(16,185,129,0.22)' }}>
-              <CheckCircle2 size={13}/> Completed
+              <CheckCircle2 size={13}/> {t('player_completed')}
             </span>
           ) : (
             <form action={completeLessonAction.bind(null, courseSlug, current.id)}>
               <button type="submit" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, background: '#10B981', color: '#fff', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                <Check size={12}/> <span className="hidden sm:inline">Complete & Continue</span><span className="sm:hidden">Complete</span>
+                <Check size={12}/> <span className="hidden sm:inline">{t('player_complete')}</span><span className="sm:hidden">{t('player_complete_short')}</span>
               </button>
             </form>
           )}
           {nextId && (
             <Link href={`/learn/${courseSlug}/${nextId}`} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.07)', whiteSpace: 'nowrap' }}>
-              Next <ChevronRight size={13}/>
+              {t('player_next')} <ChevronRight size={13}/>
             </Link>
           )}
         </div>
@@ -453,7 +459,7 @@ export function PlayerClient({
           {/* lesson title */}
           <div style={{ padding: '16px 20px 0', maxWidth: 800, margin: '0 auto' }}>
             <h1 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: 0, fontFamily: 'var(--font-display)' }}>{current.title}</h1>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: '5px 0 0' }}>Lesson {lessonNumber} of {totalLessons}</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: '5px 0 0' }}>{t('player_lesson')} {lessonNumber} {t('player_of')} {totalLessons}</p>
           </div>
 
           {/* Notes / Quiz / Code tabs */}
@@ -490,7 +496,7 @@ export function PlayerClient({
       <div className="lg:hidden" style={{ background: '#0D0D15', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px' }}>
         <details style={{ all: 'unset', display: 'block' }}>
           <summary style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#22D3EE', fontSize: 13, fontWeight: 700, listStyle: 'none' }}>
-            <Sparkles size={15}/> AI Tutor — tap to open
+            <Sparkles size={15}/> {t('player_tutor_tap')}
           </summary>
           <div style={{ marginTop: 12, height: 380, overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(255,255,255,0.07)' }}>
             <AiTutorPanel lessonTitle={current.title}/>

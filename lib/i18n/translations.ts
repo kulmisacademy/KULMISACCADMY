@@ -219,6 +219,13 @@ const T = {
     pricing_faq_4_q: 'How do certificates work?',
     pricing_faq_4_a: 'Complete all lessons in a course and you earn a verifiable certificate. You can share a link or download it.',
     pricing_upgrade_title: 'Upgrade to {plan} — unlock all courses, unlimited AI Tutor, and certificates.',
+    waafi_title: 'Pay with WaafiPay',
+    waafi_wallet: 'EVC Plus · WaafiPay Wallet',
+    waafi_number: 'Mobile money number',
+    waafi_total: 'Total',
+    waafi_pay: 'Pay {amount}',
+    waafi_approving: 'Approve on your phone…',
+    waafi_secured: 'Secured by WaafiPay · approve the push on your phone',
 
     /* ── Auth ── */
     auth_signin_title: 'Welcome back',
@@ -672,6 +679,13 @@ const T = {
     pricing_faq_4_q: 'Sidee shahaadooyinku u shaqeeyaan?',
     pricing_faq_4_a: 'Dhammee dhammaan casharrada koorso oo waxaad heli doontaa shahaado la xaqiijin karo. Waad wadaagi kartaa ama soo dejisan kartaa.',
     pricing_upgrade_title: 'U kor qaad {plan} — fur dhammaan koorsooyinka, AI Tutor xadidla\'aan, iyo shahaadooyin.',
+    waafi_title: 'Ku bixi WaafiPay',
+    waafi_wallet: 'EVC Plus · WaafiPay Wallet',
+    waafi_number: 'Lambarka lacagta mobaylka',
+    waafi_total: 'Wadarta',
+    waafi_pay: 'Bixi {amount}',
+    waafi_approving: 'Ku ansixi taleefankaaga…',
+    waafi_secured: 'Waxaa sugaya WaafiPay · ku ansixi taleefankaaga',
 
     /* ── Auth ── */
     auth_signin_title: 'Ku soo dhawow',
@@ -1125,6 +1139,13 @@ const T = {
     pricing_faq_4_q: 'كيف تعمل الشهادات؟',
     pricing_faq_4_a: 'أكمل جميع دروس الدورة لتحصل على شهادة موثقة. يمكنك مشاركة رابط أو تحميلها.',
     pricing_upgrade_title: 'الترقية إلى {plan} — افتح جميع الدورات ومدرب AI غير محدود والشهادات.',
+    waafi_title: 'ادفع عبر WaafiPay',
+    waafi_wallet: 'EVC Plus · محفظة WaafiPay',
+    waafi_number: 'رقم المحفظة المالية',
+    waafi_total: 'الإجمالي',
+    waafi_pay: 'ادفع {amount}',
+    waafi_approving: 'وافق على هاتفك…',
+    waafi_secured: 'مؤمّن عبر WaafiPay · وافق على الإشعار في هاتفك',
 
     /* ── Auth ── */
     auth_signin_title: 'مرحبًا بعودتك',

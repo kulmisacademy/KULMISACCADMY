@@ -4,14 +4,16 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { X, Smartphone, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { PayState } from '@/app/actions/payment';
+import { useT } from '@/lib/i18n/context';
 
 type Action = (prev: PayState, fd: FormData) => Promise<PayState>;
 
 function PayButton({ amount }: { amount: string }) {
+  const { t } = useT();
   const { pending } = useFormStatus();
   return (
     <Button variant="mint" size="lg" fullWidth type="submit" loading={pending}>
-      {pending ? 'Approve on your phone…' : `Pay ${amount}`}
+      {pending ? t('waafi_approving') : t('waafi_pay').replace('{amount}', amount)}
     </Button>
   );
 }
@@ -22,6 +24,7 @@ export function WaafiCheckout({
   action: Action; amount: string; triggerLabel: string;
   triggerVariant?: 'primary' | 'mint' | 'secondary'; title: string;
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [state, formAction] = useFormState<PayState, FormData>(action, {});
 
@@ -36,8 +39,8 @@ export function WaafiCheckout({
               <div className="flex items-center gap-2.5">
                 <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--gradient-mint)' }}><Smartphone size={18} color="#06222B" /></span>
                 <div>
-                  <div className="text-[15px] font-bold text-[var(--text-strong)]" style={{ fontFamily: 'var(--font-display)' }}>Pay with WaafiPay</div>
-                  <div className="text-[11px] text-[var(--text-muted)]">EVC Plus · WaafiPay Wallet</div>
+                  <div className="text-[15px] font-bold text-[var(--text-strong)]" style={{ fontFamily: 'var(--font-display)' }}>{t('waafi_title')}</div>
+                  <div className="text-[11px] text-[var(--text-muted)]">{t('waafi_wallet')}</div>
                 </div>
               </div>
               <button onClick={() => setOpen(false)} className="text-[var(--text-muted)] hover:text-[var(--text-body)]" aria-label="Close"><X size={20} /></button>
@@ -47,7 +50,7 @@ export function WaafiCheckout({
 
             <form action={formAction} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="text-[12px] font-bold uppercase tracking-wide text-[var(--text-muted)]">Mobile money number</span>
+                <span className="text-[12px] font-bold uppercase tracking-wide text-[var(--text-muted)]">{t('waafi_number')}</span>
                 <input
                   name="phone" required inputMode="tel" placeholder="0612345678"
                   className="h-12 px-4 rounded-md text-[15px] outline-none"
@@ -62,14 +65,14 @@ export function WaafiCheckout({
               )}
 
               <div className="flex items-center justify-between text-[13px] py-1">
-                <span className="text-[var(--text-muted)]">Total</span>
+                <span className="text-[var(--text-muted)]">{t('waafi_total')}</span>
                 <span className="text-[18px] font-bold text-[var(--text-strong)]" style={{ fontFamily: 'var(--font-display)' }}>{amount}</span>
               </div>
 
               <PayButton amount={amount} />
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--text-subtle)]">
-                <ShieldCheck size={13} /> Secured by WaafiPay · approve the push on your phone
+                <ShieldCheck size={13} /> {t('waafi_secured')}
               </div>
             </form>
           </div>

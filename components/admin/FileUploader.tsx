@@ -25,8 +25,13 @@ async function uploadToIK(file: File, folder: string): Promise<{ url: string; na
   fd.append('useUniqueFileName', 'true');
 
   const res = await fetch(IK_UPLOAD_URL, { method: 'POST', body: fd });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Upload failed');
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    let msg = `Upload failed (${res.status})`;
+    try { msg = (JSON.parse(text) as { message?: string }).message || msg; } catch { /* plain text */ }
+    throw new Error(msg);
+  }
+  const data = await res.json() as { url: string; name: string; size: number };
   return { url: data.url, name: data.name, size: data.size };
 }
 
@@ -130,16 +135,21 @@ export function ResourceFileUploader({ defaults }: {
       xhr.upload.onprogress = e => { if (e.lengthComputable) setProg(Math.round((e.loaded / e.total) * 100)); };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          const data = JSON.parse(xhr.responseText);
-          const ext = file.name.split('.').pop()?.toUpperCase() ?? '';
-          setPath(data.url);
-          setFname(file.name);
-          setSize(file.size);
-          setLabel(`${ext} · ${human(file.size)}`);
-          resolve();
+          try {
+            const data = JSON.parse(xhr.responseText) as { url: string };
+            const ext = file.name.split('.').pop()?.toUpperCase() ?? '';
+            setPath(data.url);
+            setFname(file.name);
+            setSize(file.size);
+            setLabel(`${ext} · ${human(file.size)}`);
+            resolve();
+          } catch {
+            reject(new Error('Unexpected response from ImageKit'));
+          }
         } else {
-          try { reject(new Error(JSON.parse(xhr.responseText).message || 'Upload failed')); }
-          catch { reject(new Error('Upload failed')); }
+          let msg = `Upload failed (${xhr.status})`;
+          try { msg = (JSON.parse(xhr.responseText) as { message?: string }).message || msg; } catch { /* plain text */ }
+          reject(new Error(msg));
         }
       };
       xhr.onerror = () => reject(new Error('Network error'));

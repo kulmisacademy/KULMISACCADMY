@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { Mail, Lock, Sparkles } from 'lucide-react';
+import { Mail, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { NeuralMesh } from '@/components/NeuralMesh';
 import { Avatar } from '@/components/ui/Avatar';
@@ -47,7 +47,12 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [next, setNext] = useState('');
-  useEffect(() => { setNext(new URLSearchParams(window.location.search).get('next') || ''); }, []);
+  const [wasReset, setWasReset] = useState(false);
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    setNext(p.get('next') || '');
+    if (p.get('reset') === '1') setWasReset(true);
+  }, []);
   const [state, formAction] = useFormState<AuthState, FormData>(signInAction, {});
 
   return (
@@ -90,8 +95,13 @@ export default function SignInPage() {
             <Field label={t('auth_email')} name="email" type="email" placeholder="you@example.com" icon={<Mail size={17} />} value={email} onChange={setEmail} />
             <div>
               <Field label={t('auth_password')} name="password" type="password" placeholder="••••••••" icon={<Lock size={17} />} value={password} onChange={setPassword} />
-              <a href="#" className="block text-right mt-2 text-[12px] font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_forgot')}</a>
+              <Link href="/forgot-password" className="block text-right mt-2 text-[12px] font-semibold no-underline" style={{ color: 'var(--text-link)' }}>{t('auth_forgot')}</Link>
             </div>
+            {wasReset && (
+              <div className="text-[13px] px-3.5 py-2.5 rounded-md flex items-center gap-2" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#10B981' }}>
+                <CheckCircle2 size={15} /> Password updated — sign in with your new password.
+              </div>
+            )}
             {state.error && (
               <div className="text-[13px] px-3.5 py-2.5 rounded-md" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#F87171' }}>
                 {state.error}

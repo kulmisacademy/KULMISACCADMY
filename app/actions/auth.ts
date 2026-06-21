@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { eq } from 'drizzle-orm';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { SignJWT, jwtVerify } from 'jose';
 import { db, users } from '@/lib/db';
 import { hashPassword, verifyPassword, createSession, destroySession } from '@/lib/auth';
-import { sendOtpEmail } from '@/lib/email';
+import { sendOtpEmail, sendResetEmail } from '@/lib/email';
 
 export type AuthState = { error?: string; step?: 'verify'; email?: string };
 
@@ -126,6 +127,57 @@ export async function signInAction(_prev: AuthState, formData: FormData): Promis
 export async function signOutAction() {
   destroySession();
   redirect('/');
+}
+
+/* ── Forgot password: send reset link ──────────────────────────── */
+export async function forgotPasswordAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get('email') || '').trim().toLowerCase();
+  if (!email) return { error: 'Enter your email address.' };
+
+  const [user] = await db.select({ id: users.id, name: users.name }).from(users).where(eq(users.email, email)).limit(1);
+  // Always show success — don't leak whether email exists
+  if (!user) return { step: 'verify' };
+
+  const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
+  const token = await new SignJWT({ sub: email })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('1h')
+    .sign(secret);
+
+  try {
+    await sendResetEmail(email, user.name, token);
+  } catch {
+    return { error: 'Failed to send email. Please try again.' };
+  }
+
+  return { step: 'verify' };
+}
+
+/* ── Reset password: verify token + save new password ──────────── */
+export async function resetPasswordAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const token    = String(formData.get('token')    || '');
+  const password = String(formData.get('password') || '');
+
+  if (!token) return { error: 'Invalid or missing reset link.' };
+  if (password.length < 8) return { error: 'Password must be at least 8 characters.' };
+
+  let email: string;
+  try {
+    const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
+    const { payload } = await jwtVerify(token, secret);
+    email = String(payload.sub);
+  } catch {
+    return { error: 'Reset link is invalid or has expired. Please request a new one.' };
+  }
+
+  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
+  if (!user) return { error: 'Account not found.' };
+
+  const passwordHash = await hashPassword(password);
+  await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
+
+  redirect('/sign-in?reset=1');
 }
 
 /* ── Admin login ─────────────────────────────────────────────────── */

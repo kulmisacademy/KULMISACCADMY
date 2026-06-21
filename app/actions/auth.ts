@@ -1,21 +1,65 @@
 'use server';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { eq } from 'drizzle-orm';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { db, users } from '@/lib/db';
 import { hashPassword, verifyPassword, createSession, destroySession } from '@/lib/auth';
+import { sendOtpEmail } from '@/lib/email';
 
-export type AuthState = { error?: string };
+export type AuthState = { error?: string; step?: 'verify'; email?: string };
 
-/** Only allow same-site relative redirects (open-redirect protection). */
 function safeNext(raw: FormDataEntryValue | null): string | null {
   const n = String(raw || '');
   return n.startsWith('/') && !n.startsWith('//') ? n : null;
 }
 
+/* ── OTP cookie helpers ─────────────────────────────────────────── */
+const COOKIE = 'kulmis_pending_reg';
+const SECRET = process.env.AUTH_SECRET ?? 'fallback-secret';
+const OTP_TTL = 10 * 60 * 1000; // 10 minutes
+
+function signPayload(payload: string): string {
+  return createHmac('sha256', SECRET).update(payload).digest('hex');
+}
+
+function writePendingCookie(data: {
+  name: string; email: string; passwordHash: string; otp: string; next: string;
+}) {
+  const payload = JSON.stringify({ ...data, exp: Date.now() + OTP_TTL });
+  const mac = signPayload(payload);
+  cookies().set(COOKIE, `${Buffer.from(payload).toString('base64')}.${mac}`, {
+    httpOnly: true, secure: true, sameSite: 'lax', maxAge: 600, path: '/',
+  });
+}
+
+function readPendingCookie(): {
+  name: string; email: string; passwordHash: string; otp: string; next: string; exp: number;
+} | null {
+  const raw = cookies().get(COOKIE)?.value;
+  if (!raw) return null;
+  const dot = raw.lastIndexOf('.');
+  if (dot < 0) return null;
+  const b64 = raw.slice(0, dot);
+  const mac = raw.slice(dot + 1);
+  const payload = Buffer.from(b64, 'base64').toString('utf8');
+  const expected = signPayload(payload);
+  if (!timingSafeEqual(Buffer.from(mac), Buffer.from(expected))) return null;
+  const data = JSON.parse(payload);
+  if (Date.now() > data.exp) return null;
+  return data;
+}
+
+function clearPendingCookie() {
+  cookies().delete(COOKIE);
+}
+
+/* ── Sign-up step 1: validate + send OTP ───────────────────────── */
 export async function signUpAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
-  const name = String(formData.get('name') || '').trim();
-  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const name     = String(formData.get('name')     || '').trim();
+  const email    = String(formData.get('email')    || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
+  const next     = String(formData.get('next')     || '');
 
   if (!name || !email || !password) return { error: 'All fields are required.' };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Enter a valid email address.' };
@@ -25,20 +69,53 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   if (existing.length) return { error: 'An account with this email already exists.' };
 
   const passwordHash = await hashPassword(password);
-  const [user] = await db.insert(users).values({ name, email, passwordHash }).returning({ id: users.id });
-  await createSession(user.id);
-  redirect(safeNext(formData.get('next')) ?? '/onboarding');
+  const otp = String(Math.floor(100000 + Math.random() * 900000)); // 6-digit
+
+  writePendingCookie({ name, email, passwordHash, otp, next });
+
+  try {
+    await sendOtpEmail(email, name, otp);
+  } catch {
+    return { error: 'Failed to send verification email. Please try again.' };
+  }
+
+  return { step: 'verify', email };
 }
 
+/* ── Sign-up step 2: verify OTP + create account ───────────────── */
+export async function verifyOtpAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const entered = String(formData.get('otp') || '').replace(/\s/g, '');
+
+  const pending = readPendingCookie();
+  if (!pending) return { error: 'Verification code expired. Please start again.', step: undefined };
+
+  if (entered !== pending.otp) return { error: 'Incorrect code. Please try again.', step: 'verify', email: pending.email };
+
+  // Double-check email not taken (race condition guard)
+  const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, pending.email)).limit(1);
+  if (existing.length) {
+    clearPendingCookie();
+    return { error: 'An account with this email already exists.' };
+  }
+
+  const [user] = await db.insert(users)
+    .values({ name: pending.name, email: pending.email, passwordHash: pending.passwordHash })
+    .returning({ id: users.id });
+
+  clearPendingCookie();
+  await createSession(user.id);
+  redirect(safeNext(pending.next) ?? '/onboarding');
+}
+
+/* ── Sign-in ────────────────────────────────────────────────────── */
 export async function signInAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
-  const email = String(formData.get('email') || '').trim().toLowerCase();
+  const email    = String(formData.get('email')    || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
 
   if (!email || !password) return { error: 'Email and password are required.' };
 
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    // Slow down brute-force attempts
     await new Promise((r) => setTimeout(r, 300));
     return { error: 'Invalid email or password.' };
   }
@@ -51,7 +128,7 @@ export async function signOutAction() {
   redirect('/');
 }
 
-/** Admin-only login — requires email + password + ADMIN_KEY env secret. */
+/* ── Admin login ─────────────────────────────────────────────────── */
 export async function adminSignInAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email    = String(formData.get('email')    || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
@@ -59,21 +136,18 @@ export async function adminSignInAction(_prev: AuthState, formData: FormData): P
 
   if (!email || !password || !key) return { error: 'All three fields are required.' };
 
-  // 1 — verify admin key first (fail fast, no DB hit if key wrong)
   const expectedKey = process.env.ADMIN_KEY ?? '';
   if (!expectedKey || key !== expectedKey) {
     await new Promise((r) => setTimeout(r, 500));
     return { error: 'Access denied.' };
   }
 
-  // 2 — verify email + password
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     await new Promise((r) => setTimeout(r, 500));
     return { error: 'Access denied.' };
   }
 
-  // 3 — verify admin role
   if (user.role !== 'admin') {
     await new Promise((r) => setTimeout(r, 500));
     return { error: 'Access denied.' };

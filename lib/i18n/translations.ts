@@ -251,6 +251,11 @@ const T = {
     auth_terms_tos: 'Terms of Service',
     auth_terms_and: 'and',
     auth_terms_privacy: 'Privacy Policy',
+    auth_otp_title: 'Check your email',
+    auth_otp_sent: 'We sent a 6-digit code to',
+    auth_otp_verify: 'Verify & create account',
+    auth_otp_no_code: "Didn't receive it?",
+    auth_otp_resend: 'Go back & resend',
 
     /* ── Dashboard ── */
     dash_title: 'Dashboard',
@@ -711,6 +716,11 @@ const T = {
     auth_terms_tos: 'Shuruudaha Adeegga',
     auth_terms_and: 'iyo',
     auth_terms_privacy: 'Siyaasadda Asturnaanta',
+    auth_otp_title: 'Emailkaaga eeg',
+    auth_otp_sent: 'Koodhka 6-nambar waxaan u dirnay',
+    auth_otp_verify: 'Xaqiiji & akoon samee',
+    auth_otp_no_code: 'Ma heshay?',
+    auth_otp_resend: 'Ku noqo & dib u dir',
 
     /* ── Dashboard ── */
     dash_title: 'Saxanka',
@@ -1171,6 +1181,11 @@ const T = {
     auth_terms_tos: 'شروط الخدمة',
     auth_terms_and: 'و',
     auth_terms_privacy: 'سياسة الخصوصية',
+    auth_otp_title: 'تحقق من بريدك',
+    auth_otp_sent: 'أرسلنا رمزًا مكونًا من 6 أرقام إلى',
+    auth_otp_verify: 'تحقق وأنشئ الحساب',
+    auth_otp_no_code: 'لم تستلمه؟',
+    auth_otp_resend: 'ارجع وأعد الإرسال',
 
     /* ── Dashboard ── */
     dash_title: 'لوحة التحكم',

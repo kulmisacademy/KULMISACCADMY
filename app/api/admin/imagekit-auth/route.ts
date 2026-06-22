@@ -17,9 +17,10 @@ export async function GET() {
   }
 
   const token  = randomUUID();
-  const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+  // ImageKit requires expire < 1 hour from now (strict), not exactly +3600s.
+  const expire = Math.floor(Date.now() / 1000) + 1800; // 30 minutes — plenty for an upload
   const signature = createHmac('sha1', privateKey)
-    .update(token + expire)
+    .update(token + String(expire))
     .digest('hex');
 
   return NextResponse.json({ token, expire, signature });

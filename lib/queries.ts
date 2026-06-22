@@ -167,6 +167,7 @@ function toCourseView(c: typeof courses.$inferSelect, ins?: typeof instructors.$
 
 /* ─────────── Public catalog ─────────── */
 export async function getAllCourses(): Promise<CourseView[]> {
+  await ensureSchema();
   const rows = await db.query.courses.findMany({
     with: { instructor: true },
     orderBy: (c, { desc }) => desc(c.reviewsCount),

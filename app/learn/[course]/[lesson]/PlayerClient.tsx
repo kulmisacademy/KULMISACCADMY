@@ -16,10 +16,24 @@ type Section     = { section: string; lessons: LessonItem[] };
 type Message     = { role: 'user' | 'assistant'; content: string };
 type CourseFile  = { id: string; title: string; fileLabel: string; fileName: string | null; fileUrl: string | null };
 
-function ytEmbed(url: string | null) {
+function getEmbed(url: string | null): { src: string; allow: string } | null {
   if (!url) return null;
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+
+  // YouTube
+  const yt = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
+  if (yt) return {
+    src: `https://www.youtube.com/embed/${yt[1]}?rel=0&modestbranding=1`,
+    allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+  };
+
+  // Vimeo  — handles vimeo.com/123, vimeo.com/channels/x/123, player.vimeo.com/video/123
+  const vm = url.match(/vimeo\.com(?:\/(?:video|channels\/[^/]+|groups\/[^/]+\/videos))?\/(\d+)/);
+  if (vm) return {
+    src: `https://player.vimeo.com/video/${vm[1]}?badge=0&autopause=0&dnt=1&title=0&byline=0&portrait=0`,
+    allow: 'autoplay; fullscreen; picture-in-picture',
+  };
+
+  return null;
 }
 
 /* ══════════════════════════════════════════
@@ -232,11 +246,21 @@ function NotesTab({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
-function QuizTab() {
+function QuizTab({ isAdmin }: { isAdmin: boolean }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const correct = 1;
   const opts = ['Store data as a flat JSON object', 'Model real-world nouns as tables with relationships', 'Put everything in one big table', 'Use arrays to store all data'];
+
+  if (!isAdmin) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'rgba(255,255,255,0.2)' }}>
+        <HelpCircle size={36} strokeWidth={1.2} />
+        <p style={{ margin: 0, fontSize: 13, textAlign: 'center' }}>No quiz available for this lesson yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>What is the best approach to data modeling?</div>
@@ -263,9 +287,9 @@ function QuizTab() {
   );
 }
 
-function CodeTab() {
+function CodeTab({ isAdmin }: { isAdmin: boolean }) {
   const { t } = useT();
-  const [code, setCode]     = useState('// Try it!\nconst greet = (name) => `Hello, ${name}!`;\nconsole.log(greet("World"));');
+  const [code, setCode]     = useState(isAdmin ? '// Try it!\nconst greet = (name) => `Hello, ${name}!`;\nconsole.log(greet("World"));' : '');
   const [output, setOutput] = useState('');
   function run() {
     try {
@@ -360,19 +384,19 @@ function ResourcesTab({ files, courseSlug }: { files: CourseFile[]; courseSlug: 
    MAIN EXPORT
 ══════════════════════════════════════════ */
 export function PlayerClient({
-  courseSlug, courseTitle, current, sections, lessonNumber, totalLessons, doneCount, nextId, files,
+  courseSlug, courseTitle, current, sections, lessonNumber, totalLessons, doneCount, nextId, files, isAdmin,
 }: {
   courseSlug: string; courseTitle: string;
   current: { id: string; title: string; videoUrl: string | null; completed: boolean };
   sections: Section[]; lessonNumber: number; totalLessons: number;
   doneCount: number; nextId: string | null; enrolled: boolean;
-  files: CourseFile[];
+  files: CourseFile[]; isAdmin: boolean;
 }) {
   const { t } = useT();
   const [tab,      setTab]    = useState<'notes'|'quiz'|'code'|'resources'>('notes');
   const [notes,    setNotes]  = useState('');
   const [currOpen, setCurr]   = useState(false);
-  const embed = ytEmbed(current.videoUrl);
+  const embed = getEmbed(current.videoUrl);
 
   const TABS = [
     { id: 'notes'     as const, label: t('player_notes'),     icon: <FileText   size={13}/> },
@@ -445,7 +469,13 @@ export function PlayerClient({
             <div style={{ borderRadius: 14, overflow: 'hidden', background: '#000', boxShadow: '0 20px 60px rgba(0,0,0,0.65)' }}>
               {embed
                 ? <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9' }}>
-                    <iframe src={embed} title={current.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen/>
+                    <iframe
+                      src={embed.src}
+                      title={current.title}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+                      allow={embed.allow}
+                      allowFullScreen
+                    />
                   </div>
                 : <div style={{ aspectRatio: '16/9', background: 'linear-gradient(150deg,#1A1040,#090618)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -479,8 +509,8 @@ export function PlayerClient({
 
           <div style={{ padding: '20px', maxWidth: 800, margin: '0 auto' }}>
             {tab === 'notes'     && <NotesTab value={notes} onChange={setNotes}/>}
-            {tab === 'quiz'      && <QuizTab/>}
-            {tab === 'code'      && <CodeTab/>}
+            {tab === 'quiz'      && <QuizTab isAdmin={isAdmin}/>}
+            {tab === 'code'      && <CodeTab isAdmin={isAdmin}/>}
             {tab === 'resources' && <ResourcesTab files={files} courseSlug={courseSlug}/>}
           </div>
         </main>

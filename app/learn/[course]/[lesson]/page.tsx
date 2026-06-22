@@ -1,15 +1,17 @@
 import { notFound, redirect } from 'next/navigation';
 import { getLessonPlayer } from '@/lib/queries';
-import { getSessionUserId } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { PlayerClient } from './PlayerClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PlayerPage({ params }: { params: { course: string; lesson: string } }) {
-  const userId = await getSessionUserId();
+  const user = await getCurrentUser();
 
   // Must be logged in to access any lesson
-  if (!userId) redirect(`/sign-in?next=/learn/${params.course}/${params.lesson}`);
+  if (!user) redirect(`/sign-in?next=/learn/${params.course}/${params.lesson}`);
+  const userId = user.id;
+  const isAdmin = user.role === 'admin';
 
   const data = await getLessonPlayer(params.course, userId);
   if (!data) notFound();
@@ -43,6 +45,7 @@ export default async function PlayerPage({ params }: { params: { course: string;
       nextId={allLessons[idx + 1]?.id ?? null}
       enrolled={data.enrolled}
       files={data.files}
+      isAdmin={isAdmin}
     />
   );
 }

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { randomUUID } from 'crypto';
 
 const SITE = 'https://www.kulmisacademy.com';
 
@@ -10,7 +11,12 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: { rejectUnauthorized: false },
 });
+
+function msgId() {
+  return `<${randomUUID()}@kulmisacademy.com>`;
+}
 
 function emailShell(content: string) {
   return `<!DOCTYPE html>
@@ -49,7 +55,13 @@ export async function sendOtpEmail(to: string, name: string, otp: string) {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to,
-    subject: `${otp} — Kulmis Academy verification code`,
+    subject: `Your Kulmis Academy sign-up code: ${otp}`,
+    messageId: msgId(),
+    headers: {
+      'X-Mailer': 'Kulmis Academy Mailer',
+      'X-Priority': '3',
+    },
+    text: `Hi ${name.split(' ')[0]},\n\nYour Kulmis Academy verification code is:\n\n${otp}\n\nThis code expires in 10 minutes. If you didn't create an account, please ignore this email.\n\n— Kulmis Academy\n${SITE}`,
     html: emailShell(`
       <p style="margin:0 0 8px;font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em">Hi ${name.split(' ')[0]} 👋</p>
       <p style="margin:0 0 28px;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.6">
@@ -73,6 +85,12 @@ export async function sendResetEmail(to: string, name: string, token: string) {
     from: process.env.EMAIL_FROM,
     to,
     subject: 'Reset your Kulmis Academy password',
+    messageId: msgId(),
+    headers: {
+      'X-Mailer': 'Kulmis Academy Mailer',
+      'X-Priority': '3',
+    },
+    text: `Hi ${name.split(' ')[0]},\n\nWe received a request to reset your Kulmis Academy password.\n\nClick this link to reset it (expires in 1 hour):\n${link}\n\nIf you didn't request this, you can safely ignore this email.\n\n— Kulmis Academy\n${SITE}`,
     html: emailShell(`
       <p style="margin:0 0 8px;font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em">Hi ${name.split(' ')[0]} 👋</p>
       <p style="margin:0 0 28px;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.6">

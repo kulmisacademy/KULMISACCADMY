@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n/context";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -32,7 +33,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('kulmis-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');var l=localStorage.getItem('kulmis_lang');if(l==='ar'){document.documentElement.setAttribute('dir','rtl');document.documentElement.setAttribute('lang','ar');}else if(l==='so'){document.documentElement.setAttribute('lang','so');}}catch(e){}})();` }} />
       </head>
-      <body className="antialiased"><I18nProvider>{children}</I18nProvider></body>
+      <body className="antialiased"><I18nProvider>{children}<WhatsAppButton /></I18nProvider></body>
     </html>
   );
 }

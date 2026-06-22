@@ -23,6 +23,7 @@ export interface Course {
   price: string;
   langs: string[];
   hours: number;
+  thumbnailUrl?: string | null;
 }
 
 export interface Enrollment {

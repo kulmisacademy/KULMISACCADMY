@@ -37,6 +37,8 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
   const [expanded, setExpanded] = useState<number[]>([0]);
   const meta = TRACK_META[course.track];
   const toggleSection = (i: number) => setExpanded(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  // First free-preview lesson across all sections
+  const freeLesson = curriculum.flatMap(s => s.lessons).find(l => l.free) ?? null;
 
   return (
     <div style={{ background: 'var(--surface-page)', minHeight: '100vh' }}>
@@ -195,10 +197,32 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
           </div>
 
           {/* Enroll card */}
-          <div className="rounded-lg overflow-hidden lg:sticky lg:top-24 order-first lg:order-none" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-lg)' }}>
-            <div className="relative aspect-video flex items-center justify-center" style={{ background: meta.bg }}>
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/15"><Play size={28} fill="white" color="white" /></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          <div className="rounded-xl overflow-hidden lg:sticky lg:top-24 order-first lg:order-none" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-lg)' }}>
+            {/* Thumbnail / preview area */}
+            <div className="relative aspect-video flex items-center justify-center overflow-hidden" style={{ background: meta.bg }}>
+              {course.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={course.thumbnailUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/15">
+                  <Play size={28} fill="white" color="white" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              {/* Free preview play button overlay */}
+              {freeLesson && (
+                <a href={`/learn/${course.id}/${freeLesson.id}`}
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-3 no-underline group">
+                  <span className="w-16 h-16 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                    style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '2px solid rgba(255,255,255,0.35)' }}>
+                    <Play size={28} fill="white" color="white" />
+                  </span>
+                  <span className="text-white text-[12px] font-bold px-3 py-1 rounded-full"
+                    style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}>
+                    Watch free preview
+                  </span>
+                </a>
+              )}
             </div>
 
             <div className="p-5 flex flex-col gap-4">

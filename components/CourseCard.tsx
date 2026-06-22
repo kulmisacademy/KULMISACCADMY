@@ -38,16 +38,20 @@ export function CourseCard({ course, onClick, enrolled, progress }: CourseCardPr
     >
       {/* Thumbnail */}
       <div
-        className="relative aspect-video flex items-center justify-center"
+        className="relative aspect-video flex items-center justify-center overflow-hidden"
         style={{ background: meta.bg }}
       >
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{ background: 'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.15), transparent 60%)' }}
-        />
-        <div className="relative w-14 h-14 rounded-xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
-          <Icon size={28} color="#fff" />
-        </div>
+        {course.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={course.thumbnailUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <>
+            <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.15), transparent 60%)' }} />
+            <div className="relative w-14 h-14 rounded-xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
+              <Icon size={28} color="#fff" />
+            </div>
+          </>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         <button
           className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"

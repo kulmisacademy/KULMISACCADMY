@@ -52,6 +52,7 @@ export const courses = pgTable('courses', {
   description: text('description').notNull().default(''),
   learnPoints: text('learn_points').array().notNull().default([]),
   requirements: text('requirements').array().notNull().default([]),
+  thumbnailUrl: text('thumbnail_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

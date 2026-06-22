@@ -52,7 +52,7 @@ export default async function EditCoursePage({ params }: { params: { slug: strin
           defaults={{
             title: course.title, track: course.track, level: course.level, instructorId: course.instructorId,
             price: course.price, duration: course.duration, hours: course.hours, langs: course.langs, description: course.description,
-            learnPoints: course.learnPoints, requirements: course.requirements,
+            learnPoints: course.learnPoints, requirements: course.requirements, thumbnailUrl: course.thumbnailUrl,
           }}
           instructors={instructors.map((i) => ({ id: i.id, name: i.name }))}
           submitLabel="Save changes"

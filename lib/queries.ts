@@ -138,6 +138,7 @@ export type CourseView = {
   description: string;
   learnPoints: string[];
   requirements: string[];
+  thumbnailUrl: string | null;
   instructor: { name: string; title: string; rating: number; students: number; courses: number; bio: string };
 };
 
@@ -157,6 +158,7 @@ function toCourseView(c: typeof courses.$inferSelect, ins?: typeof instructors.$
     description: c.description,
     learnPoints: c.learnPoints,
     requirements: c.requirements,
+    thumbnailUrl: c.thumbnailUrl ?? null,
     instructor: ins
       ? { name: ins.name, title: ins.title, rating: ins.rating, students: ins.students, courses: ins.courseCount, bio: ins.bio }
       : { name: 'Kulmis Instructor', title: 'Instructor', rating: 0, students: 0, courses: 0, bio: '' },

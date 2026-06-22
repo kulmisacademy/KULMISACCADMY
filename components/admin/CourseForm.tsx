@@ -1,11 +1,12 @@
 'use client';
 import { Button } from '@/components/ui/Button';
+import { CourseThumbnailUploader } from '@/components/admin/FileUploader';
 
 type Instructor = { id: string; name: string };
 type Defaults = {
   title?: string; track?: string; level?: string; instructorId?: string | null;
   price?: string; duration?: string; hours?: number; langs?: string[]; description?: string;
-  learnPoints?: string[]; requirements?: string[];
+  learnPoints?: string[]; requirements?: string[]; thumbnailUrl?: string | null;
 };
 
 const TRACKS = [
@@ -25,6 +26,8 @@ export function CourseForm({ action, defaults = {}, instructors, submitLabel }: 
 }) {
   return (
     <form action={action} className="flex flex-col gap-5">
+      <CourseThumbnailUploader defaultUrl={defaults.thumbnailUrl ?? ''} />
+
       <div>
         <label className={labelCls}>Course title</label>
         <input name="title" required defaultValue={defaults.title} placeholder="e.g. Build AI Apps with Next.js" className={inputCls} style={inputStyle} />

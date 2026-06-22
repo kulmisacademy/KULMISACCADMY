@@ -63,6 +63,7 @@ export async function createCourseAction(formData: FormData) {
     description: String(formData.get('description') || ''),
     learnPoints: lines(formData.get('learnPoints')),
     requirements: lines(formData.get('requirements')),
+    thumbnailUrl: (formData.get('thumbnailUrl') as string) || null,
   });
 
   revalidatePath('/admin/courses');
@@ -94,6 +95,7 @@ export async function updateCourseAction(courseSlug: string, formData: FormData)
     description: String(formData.get('description') || ''),
     learnPoints: lines(formData.get('learnPoints')),
     requirements: lines(formData.get('requirements')),
+    thumbnailUrl: (formData.get('thumbnailUrl') as string) || null,
   }).where(eq(courses.id, course.id));
 
   revalidatePath('/admin/courses');

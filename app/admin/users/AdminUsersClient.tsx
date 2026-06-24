@@ -41,12 +41,13 @@ export function AdminUsersClient({ users, courses }: { users: AdminUser[]; cours
     if (!modalUser || toggling) return;
     setToggling(courseId);
     const enrolled = enrolledIds.includes(courseId);
+    // Optimistic update — respond immediately, confirm with server after
     if (enrolled) {
-      await adminUnenrollUserAction(modalUser.id, courseId);
       setEnrolledIds(prev => prev.filter(id => id !== courseId));
+      await adminUnenrollUserAction(modalUser.id, courseId);
     } else {
-      await adminEnrollUserAction(modalUser.id, courseId);
       setEnrolledIds(prev => [...prev, courseId]);
+      await adminEnrollUserAction(modalUser.id, courseId);
     }
     setToggling(null);
   }
@@ -134,11 +135,17 @@ export function AdminUsersClient({ users, courses }: { users: AdminUser[]; cours
 
       {/* ── Enrollment modal ── */}
       {modalUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
+          style={{ background: 'rgba(2,2,8,0.45)', backdropFilter: 'blur(8px)' }}
           onClick={() => setModalUser(null)}>
-          <div className="w-full max-w-md rounded-2xl flex flex-col overflow-hidden"
-            style={{ background: 'var(--surface-card)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-2xl)', maxHeight: '80vh' }}
+          <div className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden"
+            style={{ background: 'var(--surface-card)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-2xl)', maxHeight: '85vh' }}
             onClick={e => e.stopPropagation()}>
+
+            {/* Drag handle (mobile) */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden flex-shrink-0">
+              <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border-default)' }} />
+            </div>
 
             {/* Header */}
             <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
@@ -147,15 +154,15 @@ export function AdminUsersClient({ users, courses }: { users: AdminUser[]; cours
                 <div className="font-bold text-[var(--text-strong)] text-[14px] truncate">{modalUser.name}</div>
                 <div className="text-[11px] text-[var(--text-muted)] truncate">{modalUser.email}</div>
               </div>
-              <button onClick={() => setModalUser(null)} className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--surface-raised)]" style={{ color: 'var(--text-muted)' }}>
+              <button onClick={() => setModalUser(null)} className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--surface-raised)]" style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                 <X size={16} />
               </button>
             </div>
 
-            {/* Title */}
-            <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
-              <p className="text-[13px] text-[var(--text-muted)] m-0">
-                Check a course to grant free access. Uncheck to revoke.
+            {/* Sub-heading */}
+            <div className="px-5 py-2.5" style={{ borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+              <p className="text-[12px] text-[var(--text-muted)] m-0">
+                Tap a course to grant or revoke access instantly.
               </p>
             </div>
 
@@ -170,19 +177,20 @@ export function AdminUsersClient({ users, courses }: { users: AdminUser[]; cours
               ) : (
                 courses.map((c, i) => {
                   const enrolled = enrolledIds.includes(c.id);
-                  const loading  = toggling === c.id;
                   return (
-                    <button key={c.id} onClick={() => toggleEnroll(c.id)} disabled={!!toggling}
-                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[var(--surface-raised)] disabled:opacity-60"
-                      style={{ borderTop: i ? '1px solid var(--border-subtle)' : 'none', background: 'transparent', border: 'none', cursor: toggling ? 'wait' : 'pointer' }}>
-                      <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-colors"
-                        style={{ background: enrolled ? '#6366F1' : 'var(--surface-raised)', border: enrolled ? '1.5px solid #6366F1' : '1.5px solid var(--border-default)' }}>
-                        {loading ? <Loader2 size={11} className="animate-spin" color="#fff" /> : enrolled ? <Check size={11} color="#fff" /> : null}
+                    <button key={c.id} onClick={() => toggleEnroll(c.id)}
+                      className="w-full flex items-center gap-3 px-5 py-4 text-left transition-all"
+                      style={{ borderTop: i ? '1px solid var(--border-subtle)' : 'none', background: enrolled ? 'rgba(16,185,129,0.05)' : 'transparent', border: 'none', cursor: 'pointer' }}
+                      onMouseEnter={e => !enrolled && ((e.currentTarget as HTMLElement).style.background = 'var(--surface-raised)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = enrolled ? 'rgba(16,185,129,0.05)' : 'transparent')}>
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ background: enrolled ? '#10B981' : 'var(--surface-raised)', border: enrolled ? '2px solid #10B981' : '2px solid var(--border-default)' }}>
+                        {enrolled && <Check size={13} color="#fff" strokeWidth={3} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[13px] font-semibold text-[var(--text-body)] truncate">{c.title}</div>
-                        <div className="text-[11px] font-mono" style={{ color: enrolled ? '#10B981' : 'var(--text-muted)' }}>
-                          {enrolled ? 'Access granted' : c.price}
+                        <div className="text-[11px] font-semibold mt-0.5" style={{ color: enrolled ? '#10B981' : 'var(--text-muted)' }}>
+                          {enrolled ? '✓ Access granted' : c.price}
                         </div>
                       </div>
                     </button>

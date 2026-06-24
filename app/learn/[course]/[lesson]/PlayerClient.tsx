@@ -247,7 +247,7 @@ function NotesTab({ value, onChange }: { value: string; onChange: (v: string) =>
   const { t } = useT();
   return (
     <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={t('player_notes_ph')}
-      style={{ width: '100%', minHeight: 280, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 16, fontSize: 14, color: '#fff', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-sans)', lineHeight: 1.7, boxSizing: 'border-box' }}/>
+      style={{ width: '100%', minHeight: 'clamp(140px, 30vh, 280px)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 16, fontSize: 14, color: '#fff', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-sans)', lineHeight: 1.7, boxSizing: 'border-box' }}/>
   );
 }
 

@@ -503,9 +503,9 @@ export function PlayerClient({
                   </div>
               }
 
-              {/* Block only the Vimeo logo — leave the native ⛶ fullscreen button accessible */}
+              {/* Block Vimeo logo & right-side controls — prevent navigation to vimeo.com */}
               {embed?.src.includes('vimeo') && (
-                <div style={{ position: 'absolute', bottom: 2, right: 2, width: 60, height: 32, zIndex: 4, cursor: 'default' }} />
+                <div style={{ position: 'absolute', bottom: 0, right: 0, width: 130, height: 48, zIndex: 4, cursor: 'default' }} />
               )}
 
               {/* Fullscreen button — expands the iframe itself, not the container */}

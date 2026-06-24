@@ -26,7 +26,7 @@ export function LessonsManager({ courseSlug, lessons }: { courseSlug: string; le
             <input name="section" placeholder="Section (e.g. Getting Started)" className={inputCls} style={inputStyle} />
             <input name="title" required placeholder="Lesson title" className={inputCls} style={inputStyle} />
             <input name="duration" placeholder="Duration (e.g. 8:30)" className={inputCls} style={inputStyle} />
-            <input name="videoUrl" placeholder="YouTube URL" className={inputCls} style={inputStyle} />
+            <input name="videoUrl" placeholder="YouTube or Vimeo URL" className={inputCls} style={inputStyle} />
           </div>
           <label className="flex items-center gap-2 text-[13px] text-[var(--text-body)]"><input type="checkbox" name="isFree" /> Free preview</label>
           <div className="flex gap-2">
@@ -45,7 +45,7 @@ export function LessonsManager({ courseSlug, lessons }: { courseSlug: string; le
                 <input name="section" defaultValue={l.section} placeholder="Section" className={inputCls} style={inputStyle} />
                 <input name="title" required defaultValue={l.title} placeholder="Lesson title" className={inputCls} style={inputStyle} />
                 <input name="duration" defaultValue={l.duration} placeholder="Duration" className={inputCls} style={inputStyle} />
-                <input name="videoUrl" defaultValue={l.videoUrl ?? ''} placeholder="YouTube URL" className={inputCls} style={inputStyle} />
+                <input name="videoUrl" defaultValue={l.videoUrl ?? ''} placeholder="YouTube or Vimeo URL" className={inputCls} style={inputStyle} />
               </div>
               <label className="flex items-center gap-2 text-[13px] text-[var(--text-body)]"><input type="checkbox" name="isFree" defaultChecked={l.isFree} /> Free preview</label>
               <div className="flex gap-2">

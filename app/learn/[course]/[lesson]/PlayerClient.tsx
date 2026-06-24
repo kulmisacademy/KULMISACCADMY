@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronRight, Check, CheckCircle2, Play, Lock,
   Sparkles, Send, FileText, HelpCircle, Code, Menu, X,
   ArrowLeft, BookOpen, Download, FolderOpen, ExternalLink,
+  Maximize2, Minimize2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
@@ -396,7 +397,24 @@ export function PlayerClient({
   const [tab,      setTab]    = useState<'notes'|'quiz'|'code'|'resources'>('notes');
   const [notes,    setNotes]  = useState('');
   const [currOpen, setCurr]   = useState(false);
+  const [isFS,     setIsFS]   = useState(false);
+  const videoRef = useRef<HTMLDivElement>(null);
   const embed = getEmbed(current.videoUrl);
+
+  useEffect(() => {
+    const onFSChange = () => setIsFS(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFSChange);
+    return () => document.removeEventListener('fullscreenchange', onFSChange);
+  }, []);
+
+  function toggleFullscreen() {
+    if (!videoRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      videoRef.current.requestFullscreen();
+    }
+  }
 
   const TABS = [
     { id: 'notes'     as const, label: t('player_notes'),     icon: <FileText   size={13}/> },
@@ -466,9 +484,23 @@ export function PlayerClient({
 
           {/* video */}
           <div style={{ padding: '20px 20px 0', maxWidth: 800, margin: '0 auto' }}>
-            <div style={{ borderRadius: 14, overflow: 'hidden', background: '#000', boxShadow: '0 20px 60px rgba(0,0,0,0.65)' }}>
+            <div
+              ref={videoRef}
+              style={{
+                borderRadius: isFS ? 0 : 14,
+                overflow: 'hidden',
+                background: '#000',
+                boxShadow: isFS ? 'none' : '0 20px 60px rgba(0,0,0,0.65)',
+                position: 'relative',
+                width: '100%',
+                height: isFS ? '100%' : undefined,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               {embed
-                ? <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9' }}>
+                ? <div style={{ position: 'relative', width: '100%', aspectRatio: isFS ? undefined : '16/9', height: isFS ? '100%' : undefined, flex: isFS ? 1 : undefined }}>
                     <iframe
                       src={embed.src}
                       title={current.title}
@@ -477,12 +509,32 @@ export function PlayerClient({
                       allowFullScreen
                     />
                   </div>
-                : <div style={{ aspectRatio: '16/9', background: 'linear-gradient(150deg,#1A1040,#090618)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                : <div style={{ aspectRatio: '16/9', width: '100%', background: 'linear-gradient(150deg,#1A1040,#090618)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Play size={28} color="#fff"/>
                     </div>
                   </div>
               }
+
+              {/* Fullscreen toggle button */}
+              <button
+                onClick={toggleFullscreen}
+                title={isFS ? 'Exit fullscreen' : 'Fullscreen'}
+                style={{
+                  position: 'absolute', bottom: 10, right: 10,
+                  width: 34, height: 34, borderRadius: 8,
+                  background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  color: '#fff', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: 0.7, transition: 'opacity 0.15s',
+                  zIndex: 5,
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
+              >
+                {isFS ? <Minimize2 size={15}/> : <Maximize2 size={15}/>}
+              </button>
             </div>
           </div>
 

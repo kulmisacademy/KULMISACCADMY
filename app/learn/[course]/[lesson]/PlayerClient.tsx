@@ -507,17 +507,6 @@ export function PlayerClient({
                   </div>
               }
 
-              {/* Hide & block Vimeo logo — visually covers the logo with a matching dark patch */}
-              {embed?.src.includes('vimeo') && (
-                <div style={{
-                  position: 'absolute', bottom: 0, right: 0,
-                  width: 130, height: 48,
-                  zIndex: 10,
-                  cursor: 'default',
-                  pointerEvents: 'all',
-                  background: 'linear-gradient(to left, #161616 60%, transparent)',
-                }} />
-              )}
 
               {/* Fullscreen button — expands the iframe itself, not the container */}
               {embed && (

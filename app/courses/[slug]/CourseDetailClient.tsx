@@ -34,7 +34,8 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
   };
   const TABS = ['Overview', 'Curriculum', ...(files.length ? ['Files'] : []), 'Reviews', 'Instructor'];
   const [tab, setTab] = useState('Overview');
-  const [expanded, setExpanded] = useState<number[]>([0]);
+  // All sections expanded by default so students see every lesson immediately
+  const [expanded, setExpanded] = useState<number[]>(() => curriculum.map((_, i) => i));
   const meta = TRACK_META[course.track];
   const toggleSection = (i: number) => setExpanded(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
   // First free-preview lesson across all sections

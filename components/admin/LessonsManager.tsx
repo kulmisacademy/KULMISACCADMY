@@ -23,7 +23,7 @@ export function LessonsManager({ courseSlug, lessons }: { courseSlug: string; le
       {adding && (
         <form action={(fd) => { createLessonAction(courseSlug, fd); setAdding(false); }} className="flex flex-col gap-2.5 p-4 rounded-lg" style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)' }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <input name="section" placeholder="Section (e.g. Getting Started)" className={inputCls} style={inputStyle} />
+            <input name="section" placeholder="Section name (e.g. Introduction, Lesson 1)" className={inputCls} style={inputStyle} />
             <input name="title" required placeholder="Lesson title" className={inputCls} style={inputStyle} />
             <input name="duration" placeholder="Duration (e.g. 8:30)" className={inputCls} style={inputStyle} />
             <input name="videoUrl" placeholder="YouTube or Vimeo URL" className={inputCls} style={inputStyle} />

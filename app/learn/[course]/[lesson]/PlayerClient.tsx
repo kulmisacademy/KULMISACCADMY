@@ -516,6 +516,11 @@ export function PlayerClient({
                   </div>
               }
 
+              {/* Block Vimeo logo / brand link in bottom-right */}
+              {embed?.src.includes('vimeo') && (
+                <div style={{ position: 'absolute', bottom: 0, right: 0, width: 110, height: 44, zIndex: 4, cursor: 'default' }} />
+              )}
+
               {/* Fullscreen toggle button */}
               <button
                 onClick={toggleFullscreen}

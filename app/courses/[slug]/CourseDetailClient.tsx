@@ -119,14 +119,23 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
                     </button>
                     {expanded.includes(si) && (
                       <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                        {sec.lessons.map((lesson, li) => (
-                          <div key={lesson.id} className="flex items-center gap-3 px-5 py-3.5 text-[13px]" style={{ borderTop: li ? '1px solid var(--border-subtle)' : 'none' }}>
-                            <Play size={14} color="var(--text-muted)" className="flex-shrink-0" />
-                            <span className="flex-1 text-[var(--text-body)]">{lesson.t}</span>
-                            {lesson.free && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-pill font-mono" style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>{t('cd_free_badge')}</span>}
-                            <span className="text-[var(--text-muted)] font-mono text-[11px]">{lesson.d}</span>
-                          </div>
-                        ))}
+                        {sec.lessons.map((lesson, li) => {
+                          const accessible = lesson.free || enrolled;
+                          const row = (
+                            <div className="flex items-center gap-3 px-5 py-3.5 text-[13px]" style={{ borderTop: li ? '1px solid var(--border-subtle)' : 'none', opacity: accessible ? 1 : 0.55 }}>
+                              {accessible
+                                ? <Play size={14} color={lesson.free ? '#10B981' : 'var(--text-muted)'} className="flex-shrink-0" />
+                                : <Lock size={14} color="var(--text-muted)" className="flex-shrink-0" />}
+                              <span className="flex-1 text-[var(--text-body)]">{lesson.t}</span>
+                              {lesson.free && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-pill font-mono" style={{ background: 'rgba(16,185,129,0.12)', color: '#10B981' }}>{t('cd_free_badge')}</span>}
+                              {!accessible && <Lock size={12} color="var(--text-subtle)" className="flex-shrink-0"/>}
+                              <span className="text-[var(--text-muted)] font-mono text-[11px]">{lesson.d}</span>
+                            </div>
+                          );
+                          return accessible
+                            ? <Link key={lesson.id} href={`/learn/${course.id}/${lesson.id}`} className="block no-underline hover:bg-[var(--surface-raised)] transition-colors">{row}</Link>
+                            : <div key={lesson.id}>{row}</div>;
+                        })}
                       </div>
                     )}
                   </div>

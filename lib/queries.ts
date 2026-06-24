@@ -176,6 +176,7 @@ export async function getAllCourses(): Promise<CourseView[]> {
 }
 
 export async function getCourseDetail(slug: string) {
+  await ensureSchema();
   const course = await db.query.courses.findFirst({
     where: (c, { eq }) => eq(c.slug, slug),
     with: { instructor: true },

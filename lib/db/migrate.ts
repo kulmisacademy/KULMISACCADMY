@@ -9,6 +9,12 @@ export function ensureSchema(): Promise<void> {
       const sql = neon(process.env.DATABASE_URL!);
       await sql`ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS images text[] NOT NULL DEFAULT '{}'`;
       await sql`ALTER TABLE courses ADD COLUMN IF NOT EXISTS thumbnail_url text`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS user_sessions (
+          user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          session_key text NOT NULL,
+          updated_at timestamptz NOT NULL DEFAULT now()
+        )`;
       await sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS demo_user text`;
       await sql`ALTER TABLE resources ADD COLUMN IF NOT EXISTS demo_pass text`;
       await sql`

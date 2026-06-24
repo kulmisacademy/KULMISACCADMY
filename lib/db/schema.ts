@@ -299,6 +299,13 @@ export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
   course: one(courses, { fields: [bookmarks.courseId], references: [courses.id] }),
 }));
 
+/* ───────────── Active session (1-device limit) ───────────── */
+export const userSessions = pgTable('user_sessions', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  sessionKey: text('session_key').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 /* ───────────── Inferred types ───────────── */
 export type DbCourse = typeof courses.$inferSelect;
 export type DbLesson = typeof lessons.$inferSelect;

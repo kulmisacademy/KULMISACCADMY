@@ -25,8 +25,8 @@ export default async function PlayerPage({ params }: { params: { course: string;
   const current = allLessons[idx];
   if (!current) notFound();
 
-  // Security: non-free lessons require enrollment (paid or enrolled)
-  if (!current.free && !data.enrolled) {
+  // Security: non-free lessons require enrollment — admin bypasses this
+  if (!current.free && !data.enrolled && !isAdmin) {
     redirect(`/courses/${params.course}?mustpay=1`);
   }
 

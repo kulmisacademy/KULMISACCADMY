@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { and, eq, asc, max } from 'drizzle-orm';
 import { db, courses, lessons, users, resources, courseResources, aiPlans, instructors } from '@/lib/db';
+import { enrollments } from '@/lib/db/schema';
 import { getCurrentUser } from '@/lib/auth';
 
 async function requireAdmin() {
@@ -347,4 +348,29 @@ export async function deleteInstructor(id: string) {
   await requireAdmin();
   await db.delete(instructors).where(eq(instructors.id, id));
   revalidatePath('/admin/instructors');
+}
+
+/* ───────── Admin manual enrollment ───────── */
+export async function adminEnrollUserAction(userId: string, courseId: string) {
+  await requireAdmin();
+  await db.insert(enrollments)
+    .values({ userId, courseId })
+    .onConflictDoNothing({ target: [enrollments.userId, enrollments.courseId] });
+  revalidatePath('/admin/users');
+}
+
+export async function adminUnenrollUserAction(userId: string, courseId: string) {
+  await requireAdmin();
+  await db.delete(enrollments)
+    .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)));
+  revalidatePath('/admin/users');
+}
+
+export async function getUserEnrollmentIds(userId: string): Promise<string[]> {
+  await requireAdmin();
+  const rows = await db
+    .select({ courseId: enrollments.courseId })
+    .from(enrollments)
+    .where(eq(enrollments.userId, userId));
+  return rows.map(r => r.courseId);
 }

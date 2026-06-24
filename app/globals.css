@@ -2,49 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Video fullscreen: fill the entire screen in landscape */
-div:fullscreen {
-  background: #000;
-  width: 100vw !important;
-  height: 100vh !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 0 !important;
-}
-div:fullscreen > div {
-  width: 100% !important;
-  height: 100% !important;
-  aspect-ratio: unset !important;
-  position: relative !important;
-}
-div:fullscreen iframe {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-div:-webkit-full-screen {
-  background: #000;
-  width: 100vw !important;
-  height: 100vh !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 0 !important;
-}
-div:-webkit-full-screen > div {
-  width: 100% !important;
-  height: 100% !important;
-  aspect-ratio: unset !important;
-  position: relative !important;
-}
-div:-webkit-full-screen iframe {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-}
+/* When the lesson iframe goes fullscreen, ensure it fills the entire screen */
+iframe:fullscreen { width: 100vw !important; height: 100vh !important; border: none !important; }
+iframe:-webkit-full-screen { width: 100vw !important; height: 100vh !important; border: none !important; }
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 

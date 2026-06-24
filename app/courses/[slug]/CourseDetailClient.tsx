@@ -82,6 +82,12 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
 
             {tab === 'Overview' && (
               <div className="flex flex-col gap-7">
+                {course.description && (
+                  <div>
+                    <h3 className="text-[18px] font-bold text-[var(--text-strong)] mb-3" style={{ fontFamily: 'var(--font-display)' }}>{t('cd_description')}</h3>
+                    <p className="text-[14px] text-[var(--text-body)] leading-relaxed m-0 whitespace-pre-line">{course.description}</p>
+                  </div>
+                )}
                 {learnPoints.length > 0 && (
                   <div>
                     <h3 className="text-[18px] font-bold text-[var(--text-strong)] mb-4" style={{ fontFamily: 'var(--font-display)' }}>{t('cd_learn')}</h3>
@@ -98,12 +104,6 @@ export function CourseDetailClient({ detail, enrolled, isLoggedIn }: { detail: D
                     <ul className="text-[13px] text-[var(--text-body)] flex flex-col gap-2 pl-4 list-disc">
                       {requirements.map((r) => <li key={r}>{r}</li>)}
                     </ul>
-                  </div>
-                )}
-                {course.description && (
-                  <div>
-                    <h3 className="text-[18px] font-bold text-[var(--text-strong)] mb-3" style={{ fontFamily: 'var(--font-display)' }}>{t('cd_description')}</h3>
-                    <p className="text-[14px] text-[var(--text-body)] leading-relaxed m-0 whitespace-pre-line">{course.description}</p>
                   </div>
                 )}
               </div>

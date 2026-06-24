@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { and, eq, asc, max } from 'drizzle-orm';
+import { and, eq, asc, max, count } from 'drizzle-orm';
 import { db, courses, lessons, users, resources, courseResources, aiPlans, instructors } from '@/lib/db';
 import { enrollments } from '@/lib/db/schema';
 import { getCurrentUser } from '@/lib/auth';
@@ -41,6 +41,12 @@ async function recountLessons(courseId: string) {
   await db.update(courses).set({ lessonCount: rows.length }).where(eq(courses.id, courseId));
 }
 
+async function recountInstructorCourses(instructorId: string | null | undefined) {
+  if (!instructorId) return;
+  const [row] = await db.select({ n: count() }).from(courses).where(eq(courses.instructorId, instructorId));
+  await db.update(instructors).set({ courseCount: row?.n ?? 0 }).where(eq(instructors.id, instructorId));
+}
+
 /* ───────── Courses ───────── */
 export async function createCourseAction(formData: FormData) {
   await requireAdmin();
@@ -50,12 +56,13 @@ export async function createCourseAction(formData: FormData) {
   const langs = String(formData.get('langs') || 'en').split(',').map((s) => s.trim()).filter(Boolean);
   const slug = await uniqueSlug(slugify(title));
 
+  const instructorId = (formData.get('instructorId') as string) || null;
   await db.insert(courses).values({
     slug,
     title,
     track: String(formData.get('track') || 'vibe-coding') as 'vibe-coding',
     level: String(formData.get('level') || 'beginner') as 'beginner',
-    instructorId: (formData.get('instructorId') as string) || null,
+    instructorId,
     duration: String(formData.get('duration') || ''),
     hours: Number(formData.get('hours') || 0),
     price,
@@ -67,6 +74,7 @@ export async function createCourseAction(formData: FormData) {
     thumbnailUrl: (formData.get('thumbnailUrl') as string) || null,
   });
 
+  await recountInstructorCourses(instructorId);
   revalidatePath('/admin/courses');
   revalidatePath('/courses');
   redirect(`/admin/courses/${slug}`);
@@ -82,12 +90,13 @@ export async function updateCourseAction(courseSlug: string, formData: FormData)
   const langs = String(formData.get('langs') || 'en').split(',').map((s) => s.trim()).filter(Boolean);
   const newSlug = title !== course.title ? await uniqueSlug(slugify(title), course.id) : course.slug;
 
+  const newInstructorId = (formData.get('instructorId') as string) || null;
   await db.update(courses).set({
     slug: newSlug,
     title,
     track: String(formData.get('track') || course.track) as 'vibe-coding',
     level: String(formData.get('level') || course.level) as 'beginner',
-    instructorId: (formData.get('instructorId') as string) || null,
+    instructorId: newInstructorId,
     duration: String(formData.get('duration') || ''),
     hours: Number(formData.get('hours') || 0),
     price,
@@ -99,6 +108,9 @@ export async function updateCourseAction(courseSlug: string, formData: FormData)
     thumbnailUrl: (formData.get('thumbnailUrl') as string) || null,
   }).where(eq(courses.id, course.id));
 
+  // Recount both old and new instructor in case instructor changed
+  await recountInstructorCourses(course.instructorId);
+  if (newInstructorId !== course.instructorId) await recountInstructorCourses(newInstructorId);
   revalidatePath('/admin/courses');
   revalidatePath(`/courses/${newSlug}`);
   redirect(`/admin/courses/${newSlug}`);
@@ -106,7 +118,9 @@ export async function updateCourseAction(courseSlug: string, formData: FormData)
 
 export async function deleteCourseAction(courseSlug: string) {
   await requireAdmin();
+  const course = await db.query.courses.findFirst({ where: (c, { eq }) => eq(c.slug, courseSlug) });
   await db.delete(courses).where(eq(courses.slug, courseSlug));
+  if (course?.instructorId) await recountInstructorCourses(course.instructorId);
   revalidatePath('/admin/courses');
   revalidatePath('/courses');
   redirect('/admin/courses');

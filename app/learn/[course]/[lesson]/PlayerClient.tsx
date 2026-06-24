@@ -17,8 +17,12 @@ type Section     = { section: string; lessons: LessonItem[] };
 type Message     = { role: 'user' | 'assistant'; content: string };
 type CourseFile  = { id: string; title: string; fileLabel: string; fileName: string | null; fileUrl: string | null };
 
-function getEmbed(url: string | null): { src: string; allow: string } | null {
-  if (!url) return null;
+function getEmbed(raw: string | null): { src: string; allow: string } | null {
+  if (!raw) return null;
+
+  // Accept full Vimeo/YouTube embed HTML — extract the iframe src
+  const iframeSrc = raw.match(/<iframe[^>]+src=["']([^"']+)["']/i)?.[1];
+  const url = iframeSrc ?? raw.trim();
 
   // YouTube
   const yt = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
@@ -27,7 +31,7 @@ function getEmbed(url: string | null): { src: string; allow: string } | null {
     allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
   };
 
-  // Vimeo  — handles vimeo.com/123, vimeo.com/channels/x/123, player.vimeo.com/video/123
+  // Vimeo — handles vimeo.com/123, player.vimeo.com/video/123, full embed HTML
   const vm = url.match(/vimeo\.com(?:\/(?:video|channels\/[^/]+|groups\/[^/]+\/videos))?\/(\d+)/);
   if (vm) return {
     src: `https://player.vimeo.com/video/${vm[1]}?badge=0&autopause=0&dnt=1&title=0&byline=0&portrait=0`,

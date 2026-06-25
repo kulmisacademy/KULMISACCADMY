@@ -96,12 +96,13 @@ export default function LandingPage() {
 
           {/* Hero image */}
           <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: '0 0 60px rgba(99,102,241,0.35), var(--shadow-2xl)', border: '1px solid rgba(99,102,241,0.3)' }}>
-            <div className="relative" style={{ aspectRatio: '16/11' }}>
-              {/* Real photo */}
+            <div className="relative" style={{ aspectRatio: '16/11', background: 'linear-gradient(150deg, #2F1D78, #120C33)' }}>
+              {/* Real photo — fallback to gradient if missing */}
               <img
                 src="/hero.jpg"
                 alt="Kulmis Academy — Student coding with AI"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
               {/* Subtle gradient overlay at bottom */}
               <div aria-hidden className="absolute inset-x-0 bottom-0 h-28"

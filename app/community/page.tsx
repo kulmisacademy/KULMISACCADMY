@@ -1,7 +1,7 @@
-import { count, desc } from 'drizzle-orm';
+import { count, desc, inArray, ne } from 'drizzle-orm';
 import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { users, communityPosts } from '@/lib/db/schema';
 import { getFeed } from '@/lib/queries';
 import { ensureSchema } from '@/lib/db/migrate';
 import { CommunityClient } from './CommunityClient';
@@ -23,24 +23,37 @@ export default async function CommunityPage() {
     me = u ? { id: u.id, name: u.name, avatarUrl: u.avatarUrl } : null;
   }
 
+  // Only users who have posted at least once, excluding admins
+  const posterRows = await db
+    .selectDistinct({ userId: communityPosts.userId })
+    .from(communityPosts);
+
+  const posterIds = posterRows.map((r) => r.userId);
+
   const [posts, memberRows, [{ value: memberCount } = { value: 0 }]] = await Promise.all([
     getFeed(user?.id ?? null),
-    db.select({ id: users.id, name: users.name, headline: users.headline, avatarUrl: users.avatarUrl, plan: users.plan, role: users.role, createdAt: users.createdAt })
-      .from(users)
-      .orderBy(desc(users.createdAt))
-      .limit(50),
-    db.select({ value: count() }).from(users),
+    posterIds.length > 0
+      ? db.select({ id: users.id, name: users.name, headline: users.headline, avatarUrl: users.avatarUrl, plan: users.plan, role: users.role, createdAt: users.createdAt })
+          .from(users)
+          .where(inArray(users.id, posterIds))
+          .orderBy(desc(users.createdAt))
+          .limit(100)
+      : Promise.resolve([]),
+    db.select({ value: count() }).from(users).where(ne(users.role, 'admin')),
   ]);
 
-  const members = memberRows.map((u) => ({
-    id: u.id,
-    name: u.name,
-    headline: u.headline ?? '',
-    avatarUrl: u.avatarUrl,
-    plan: u.plan,
-    role: u.role,
-    joined: new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-  }));
+  // Exclude admins from members list
+  const members = memberRows
+    .filter((u) => u.role !== 'admin')
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      headline: u.headline ?? '',
+      avatarUrl: u.avatarUrl,
+      plan: u.plan,
+      role: u.role,
+      joined: new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    }));
 
   return <CommunityClient me={me} posts={posts} memberCount={Number(memberCount)} members={members} />;
 }

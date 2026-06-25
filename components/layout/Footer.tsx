@@ -31,8 +31,8 @@ export function Footer() {
     ]},
     { h: t('footer_support'), items: [
       { label: t('footer_help'), href: WHATSAPP },
-      { label: t('footer_contact'), href: WHATSAPP },
-      { label: t('footer_email'), href: `mailto:${EMAIL}` },
+      { label: 'Contact: +252 61 360 9678', href: WHATSAPP },
+      { label: EMAIL, href: `mailto:${EMAIL}` },
       { label: t('footer_my_dashboard'), href: '/dashboard' },
     ]},
   ];

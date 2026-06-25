@@ -67,7 +67,7 @@ export default function LandingPage() {
         <NeuralMesh />
         <div aria-hidden className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(700px 360px at 78% -10%, rgba(34,211,238,0.12), transparent 70%), radial-gradient(620px 380px at 8% 110%, rgba(99,102,241,0.18), transparent 70%)' }} />
-        <div className="relative mx-auto grid items-center gap-10 lg:gap-14 grid-cols-1 lg:grid-cols-[1.15fr_0.85fr]"
+        <div className="relative mx-auto grid items-center gap-10 lg:gap-12 grid-cols-1 lg:grid-cols-[1fr_1fr]"
           style={{ maxWidth: 'var(--container-max)', padding: 'clamp(56px, 8vw, 100px) clamp(20px, 5vw, 56px)' }}>
           <div>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-pill border text-[13px] font-semibold mb-5"

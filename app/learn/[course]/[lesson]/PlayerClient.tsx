@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ChevronDown, ChevronRight, Check, CheckCircle2, Play, Lock,
-  Sparkles, Send, FileText, HelpCircle, Code, Menu, X,
+  Sparkles, Send, FileText, HelpCircle, Menu, X,
   ArrowLeft, BookOpen, Download, FolderOpen, ExternalLink,
   Maximize2, Minimize2,
 } from 'lucide-react';
@@ -292,28 +292,57 @@ function QuizTab({ isAdmin }: { isAdmin: boolean }) {
   );
 }
 
-function CodeTab({ isAdmin }: { isAdmin: boolean }) {
-  const { t } = useT();
-  const [code, setCode]     = useState(isAdmin ? '// Try it!\nconst greet = (name) => `Hello, ${name}!`;\nconsole.log(greet("World"));' : '');
-  const [output, setOutput] = useState('');
-  function run() {
-    try {
-      const logs: string[] = [];
-      new Function('console', code)({ log: (...a: unknown[]) => logs.push(a.map(String).join(' ')) });
-      setOutput(logs.join('\n') || '(no output)');
-    } catch (e: unknown) { setOutput(`Error: ${e instanceof Error ? e.message : String(e)}`); }
-  }
+function CodeTab() {
+  const ITEMS = [
+    { emoji: '📋', title: 'PRD Templates', desc: 'Product Requirements Documents for your AI projects' },
+    { emoji: '⚡', title: 'Prompt Packs', desc: 'Ready-to-use prompts for building real apps faster' },
+    { emoji: '🤖', title: 'System Prompts', desc: 'Battle-tested system prompts for AI agents & chatbots' },
+    { emoji: '📚', title: 'eBooks & Guides', desc: 'In-depth guides on vibe coding and AI development' },
+    { emoji: '🗂️', title: 'Notion Kits', desc: 'Project management templates for developers' },
+  ];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>JavaScript</span>
-        <Button variant="mint" size="sm" iconLeft={<Play size={12}/>} onClick={run}>{t('player_run')}</Button>
-      </div>
-      <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} rows={9}
-        style={{ width: '100%', padding: 16, borderRadius: 12, fontSize: 13, fontFamily: 'var(--font-mono)', background: '#07070C', border: '1px solid rgba(255,255,255,0.07)', color: '#E2E8F0', resize: 'none', outline: 'none', boxSizing: 'border-box' }}/>
-      {output && (
-        <div style={{ padding: '12px 16px', borderRadius: 12, fontSize: 13, fontFamily: 'var(--font-mono)', background: '#07070C', border: '1px solid rgba(16,185,129,0.2)', color: '#10B981', whiteSpace: 'pre-wrap' }}>{output}</div>
-      )}
+      <p style={{ margin: '0 0 4px', fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+        Free & premium resources to accelerate your learning
+      </p>
+      {ITEMS.map((item) => (
+        <Link
+          key={item.title}
+          href="/resources"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 14px', borderRadius: 12, textDecoration: 'none',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            transition: 'background 0.15s, border-color 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.08)';
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)';
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
+          }}
+        >
+          <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{item.title}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{item.desc}</div>
+          </div>
+          <ExternalLink size={14} color="rgba(255,255,255,0.25)" style={{ flexShrink: 0 }} />
+        </Link>
+      ))}
+      <Link
+        href="/resources"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          marginTop: 4, padding: '10px 16px', borderRadius: 12,
+          background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
+          color: '#818CF8', textDecoration: 'none', fontSize: 13, fontWeight: 600,
+        }}
+      >
+        <BookOpen size={14} /> Browse all Resources
+      </Link>
     </div>
   );
 }
@@ -423,7 +452,7 @@ export function PlayerClient({
   const TABS = [
     { id: 'notes'     as const, label: t('player_notes'),     icon: <FileText   size={13}/> },
     { id: 'quiz'      as const, label: t('player_quiz'),      icon: <HelpCircle size={13}/> },
-    { id: 'code'      as const, label: t('player_code'),      icon: <Code       size={13}/> },
+    { id: 'code'      as const, label: 'Resources',            icon: <BookOpen   size={13}/> },
     { id: 'resources' as const, label: `${t('player_resources')}${files.length > 0 ? ` (${files.length})` : ''}`, icon: <Download size={13}/> },
   ];
 
@@ -556,7 +585,7 @@ export function PlayerClient({
           <div style={{ padding: '20px', maxWidth: 800, margin: '0 auto' }}>
             {tab === 'notes'     && <NotesTab value={notes} onChange={setNotes}/>}
             {tab === 'quiz'      && <QuizTab isAdmin={isAdmin}/>}
-            {tab === 'code'      && <CodeTab isAdmin={isAdmin}/>}
+            {tab === 'code'      && <CodeTab/>}
             {tab === 'resources' && <ResourcesTab files={files} courseSlug={courseSlug}/>}
           </div>
         </main>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Globe, MessageCircle, AtSign, Sparkles } from 'lucide-react';
 import { useT } from '@/lib/i18n/context';
 
-const EMAIL = 'kulmistechsolutions@gmail.com';
+const EMAIL = 'kulmisacademyso@gmail.com';
 const WHATSAPP = 'https://wa.me/252613609678';
 
 const SOCIALS = [

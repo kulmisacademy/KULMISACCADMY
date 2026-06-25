@@ -94,30 +94,37 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Player preview */}
-          <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-2xl)', border: '1px solid var(--border-on-dark)' }}>
-            <div className="relative flex items-center justify-center" style={{ aspectRatio: '16/11', background: 'linear-gradient(150deg, #2F1D78, #120C33)' }}>
-              <div aria-hidden className="absolute inset-0 opacity-35" style={{ background: 'radial-gradient(300px 200px at 70% 20%, rgba(131,111,255,0.6), transparent)' }} />
-              <Link href="/sign-up">
-                <button className="relative w-20 h-20 rounded-full flex items-center justify-center border-none cursor-pointer" style={{ background: '#10B981', boxShadow: 'var(--glow-mint)' }}>
-                  <Play size={30} fill="#0B0723" color="#0B0723" />
-                </button>
-              </Link>
-              <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 rounded-pill px-3.5 py-2" style={{ background: 'rgba(11,7,35,0.6)', backdropFilter: 'blur(8px)', color: '#fff' }}>
-                <Play size={14} />
-                <div className="flex-1 h-1 rounded-full bg-white/20">
-                  <div className="h-full rounded-full bg-[#10B981]" style={{ width: '38%' }} />
+          {/* Hero image */}
+          <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: '0 0 60px rgba(99,102,241,0.35), var(--shadow-2xl)', border: '1px solid rgba(99,102,241,0.3)' }}>
+            <div className="relative" style={{ aspectRatio: '16/11' }}>
+              {/* Real photo */}
+              <img
+                src="/hero.jpg"
+                alt="Kulmis Academy — Student coding with AI"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+              {/* Subtle gradient overlay at bottom */}
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-28"
+                style={{ background: 'linear-gradient(to top, rgba(6,4,30,0.88) 0%, transparent 100%)' }} />
+              {/* Brand glow top-right */}
+              <div aria-hidden className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
+                style={{ background: 'radial-gradient(circle at top right, rgba(99,102,241,0.25), transparent 70%)' }} />
+
+              {/* Floating stats badge */}
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl"
+                  style={{ background: 'rgba(6,4,30,0.75)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="w-2 h-2 rounded-full bg-[#10B981] flex-shrink-0" style={{ boxShadow: '0 0 6px #10B981' }} />
+                  <span className="text-[12px] font-bold text-white">12,400+ {t('hero_social')}</span>
                 </div>
-                <span className="text-[11px] font-mono">4:12 / 11:30</span>
+                <Link href="/courses">
+                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl cursor-pointer"
+                    style={{ background: 'rgba(99,102,241,0.85)', backdropFilter: 'blur(10px)', border: '1px solid rgba(129,140,248,0.5)' }}>
+                    <Play size={12} fill="#fff" color="#fff" />
+                    <span className="text-[12px] font-bold text-white">{t('hero_cta_secondary')}</span>
+                  </div>
+                </Link>
               </div>
-            </div>
-            <div className="flex items-center gap-3 px-4 py-3.5" style={{ background: 'var(--surface-card)' }}>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-pill uppercase font-mono" style={{ background: 'rgba(131,111,255,0.18)', color: '#836FFF', border: '1px solid rgba(131,111,255,0.3)' }}>
-                {t('track_vibe_title')}
-              </span>
-              <span className="text-[13px] font-semibold text-[var(--text-strong)] truncate" style={{ fontFamily: 'var(--font-display)' }}>
-                {t('lesson_preview')}
-              </span>
             </div>
           </div>
         </div>

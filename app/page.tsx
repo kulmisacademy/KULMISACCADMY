@@ -115,16 +115,16 @@ export default function LandingPage() {
           {/* Hero image */}
           <div className="relative rounded-2xl overflow-hidden self-center"
             style={{ boxShadow: '0 0 80px rgba(99,102,241,0.4), var(--shadow-2xl)', border: '1px solid rgba(99,102,241,0.35)' }}>
-            <div className="relative" style={{ aspectRatio: '4/3', background: 'linear-gradient(150deg, #2F1D78, #120C33)' }}>
-              {/* ImageKit hero photo */}
+            {/* 3:2 matches the actual image ratio — no cropping */}
+            <div className="relative" style={{ aspectRatio: '3/2', background: '#0A0810' }}>
               <img
                 src={HERO_IMG}
                 alt="Kulmis Academy — Student coding with AI"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
               {/* Gradient overlay at bottom */}
-              <div aria-hidden className="absolute inset-x-0 bottom-0 h-24"
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-20"
                 style={{ background: 'linear-gradient(to top, rgba(6,4,30,0.85) 0%, transparent 100%)' }} />
 
               {/* Floating badges */}
@@ -132,7 +132,7 @@ export default function LandingPage() {
                 <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl"
                   style={{ background: 'rgba(6,4,30,0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)' }}>
                   <div className="w-2 h-2 rounded-full bg-[#10B981] flex-shrink-0 animate-pulse" style={{ boxShadow: '0 0 6px #10B981' }} />
-                  <span className="text-[12px] font-bold text-white tabular-nums">{learnerCount.toLocaleString()}+ {t('hero_social')}</span>
+                  <span className="text-[12px] font-bold text-white tabular-nums">400+ {t('hero_social')}</span>
                 </div>
                 <Link href="/courses">
                   <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl cursor-pointer transition-opacity hover:opacity-90"

@@ -10,7 +10,24 @@ import { Avatar } from '@/components/ui/Avatar';
 import { TRACK_META } from '@/lib/data';
 import { useT } from '@/lib/i18n/context';
 import { LANGS } from '@/lib/i18n/translations';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+const HERO_IMG = 'https://ik.imagekit.io/mstsbs4el8/kulmis-academy/hero.jpg';
+
+function useAnimatedCounter(from: number, to: number, stepMs = 2) {
+  const [count, setCount] = useState(from);
+  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    ref.current = setInterval(() => {
+      setCount((prev) => {
+        if (prev + 10 >= to) { clearInterval(ref.current!); return to; }
+        return prev + 10;
+      });
+    }, stepMs);
+    return () => { if (ref.current) clearInterval(ref.current); };
+  }, [from, to, stepMs]);
+  return count;
+}
 import type { CourseView } from '@/lib/queries';
 
 export default function LandingPage() {
@@ -19,6 +36,7 @@ export default function LandingPage() {
   useEffect(() => {
     fetch('/api/courses').then(r => r.json()).then((all: CourseView[]) => setFeatured(all.slice(0, 3))).catch(() => {});
   }, []);
+  const learnerCount = useAnimatedCounter(400, 12400, 2);
 
   const TRACKS = [
     { track: 'vibe-coding' as const, icon: Sparkles, title: t('track_vibe_title'), desc: t('track_vibe_desc') },
@@ -89,38 +107,36 @@ export default function LandingPage() {
                 ))}
               </div>
               <span className="text-[13px]" style={{ color: 'var(--indigo-100)' }}>
-                <strong className="text-white">12,400+</strong> {t('hero_social')}
+                <strong className="text-white">{learnerCount.toLocaleString()}+</strong> {t('hero_social')}
               </span>
             </div>
           </div>
 
           {/* Hero image */}
-          <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: '0 0 60px rgba(99,102,241,0.35), var(--shadow-2xl)', border: '1px solid rgba(99,102,241,0.3)' }}>
-            <div className="relative" style={{ aspectRatio: '16/11', background: 'linear-gradient(150deg, #2F1D78, #120C33)' }}>
-              {/* Real photo — fallback to gradient if missing */}
+          <div className="relative rounded-2xl overflow-hidden self-center"
+            style={{ boxShadow: '0 0 80px rgba(99,102,241,0.4), var(--shadow-2xl)', border: '1px solid rgba(99,102,241,0.35)' }}>
+            <div className="relative" style={{ aspectRatio: '4/3', background: 'linear-gradient(150deg, #2F1D78, #120C33)' }}>
+              {/* ImageKit hero photo */}
               <img
-                src="/hero.jpg"
+                src={HERO_IMG}
                 alt="Kulmis Academy — Student coding with AI"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
-              {/* Subtle gradient overlay at bottom */}
-              <div aria-hidden className="absolute inset-x-0 bottom-0 h-28"
-                style={{ background: 'linear-gradient(to top, rgba(6,4,30,0.88) 0%, transparent 100%)' }} />
-              {/* Brand glow top-right */}
-              <div aria-hidden className="absolute top-0 right-0 w-40 h-40 pointer-events-none"
-                style={{ background: 'radial-gradient(circle at top right, rgba(99,102,241,0.25), transparent 70%)' }} />
+              {/* Gradient overlay at bottom */}
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-24"
+                style={{ background: 'linear-gradient(to top, rgba(6,4,30,0.85) 0%, transparent 100%)' }} />
 
-              {/* Floating stats badge */}
+              {/* Floating badges */}
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl"
-                  style={{ background: 'rgba(6,4,30,0.75)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div className="w-2 h-2 rounded-full bg-[#10B981] flex-shrink-0" style={{ boxShadow: '0 0 6px #10B981' }} />
-                  <span className="text-[12px] font-bold text-white">12,400+ {t('hero_social')}</span>
+                  style={{ background: 'rgba(6,4,30,0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                  <div className="w-2 h-2 rounded-full bg-[#10B981] flex-shrink-0 animate-pulse" style={{ boxShadow: '0 0 6px #10B981' }} />
+                  <span className="text-[12px] font-bold text-white tabular-nums">{learnerCount.toLocaleString()}+ {t('hero_social')}</span>
                 </div>
                 <Link href="/courses">
-                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl cursor-pointer"
-                    style={{ background: 'rgba(99,102,241,0.85)', backdropFilter: 'blur(10px)', border: '1px solid rgba(129,140,248,0.5)' }}>
+                  <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl cursor-pointer transition-opacity hover:opacity-90"
+                    style={{ background: 'rgba(99,102,241,0.9)', backdropFilter: 'blur(12px)', border: '1px solid rgba(129,140,248,0.5)' }}>
                     <Play size={12} fill="#fff" color="#fff" />
                     <span className="text-[12px] font-bold text-white">{t('hero_cta_secondary')}</span>
                   </div>

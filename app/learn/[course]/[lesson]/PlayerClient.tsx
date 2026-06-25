@@ -452,8 +452,8 @@ export function PlayerClient({
   const TABS = [
     { id: 'notes'     as const, label: t('player_notes'),     icon: <FileText   size={13}/> },
     { id: 'quiz'      as const, label: t('player_quiz'),      icon: <HelpCircle size={13}/> },
-    { id: 'code'      as const, label: 'Resources',            icon: <BookOpen   size={13}/> },
-    { id: 'resources' as const, label: `${t('player_resources')}${files.length > 0 ? ` (${files.length})` : ''}`, icon: <Download size={13}/> },
+    { id: 'code'      as const, label: 'Prompts',             icon: <Sparkles   size={13}/> },
+    { id: 'resources' as const, label: `Course Files${files.length > 0 ? ` (${files.length})` : ''}`, icon: <Download size={13}/> },
   ];
 
   return (

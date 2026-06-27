@@ -201,6 +201,16 @@ export async function deleteCourseResourceAction(id: string, courseSlug: string)
   revalidatePath(`/courses/${courseSlug}`);
 }
 
+export async function reorderLessonsAction(courseSlug: string, orderedIds: string[]) {
+  await requireAdmin();
+  await Promise.all(
+    orderedIds.map((id, idx) =>
+      db.update(lessons).set({ orderIndex: idx }).where(eq(lessons.id, id))
+    )
+  );
+  revalidatePath(`/admin/courses/${courseSlug}`);
+}
+
 /* ───────── Users ───────── */
 export async function deleteUserAction(userId: string) {
   const admin = await requireAdmin();
